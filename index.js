@@ -9,6 +9,8 @@ app.get('/Welcome',(req,res)=>{
 app.use((req, res) => {
     res.status(404).render("pageNotFound",{title:"Page Not Found"});
 });
-app.listen(80,()=>{
+
+
+app.listen(3000, ()=>{
     console.log("server is running");
 })
