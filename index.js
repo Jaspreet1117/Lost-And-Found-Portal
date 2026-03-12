@@ -354,6 +354,25 @@ app.post("/submit-lost-report", upload.single("itemImage"), (req, res) => {
     });
   });
 });
+
+app.get("/profile", (req, res) => {
+  const userData = {
+    name: "Japnoor Kaur",
+    email: "japnoor@email.com",
+    phone: "9876543210",
+    campus: "Main Campus",
+    bio: "Student at college helping people recover lost items.",
+    role: "Student",
+    profileImage: "images/profileBlue.jpeg",
+    coverImage: "images/blue5.jpeg",
+    stats: {
+      lost: 5,
+      found: 3,
+      returned: 2,
+    },
+  };
+  res.render("profile", { user: userData });
+});
 app.use((req, res) => {
   res.status(404).render("pageNotFound", { title: "Page Not Found" });
 });

@@ -1,4 +1,3 @@
-<!important: ensure you have an 'assets' or 'public' folder for your static files like images and videos>
 <!doctype html>
 <html lang="en">
   <head>
@@ -26,20 +25,11 @@
         align-items: center;
         justify-content: center;
         color: #ffffff;
-        background-image: url("https://image.shutterstock.com/image-photo/keys-on-tiled-staircase-outdoors-260nw-2211129601.jpg");
+        /* Using your chosen background image */
+        background-image: url("https://i.pinimg.com/1200x/41/74/b9/4174b96d7a37d5982fe53cba5343beab.jpg");
         background-repeat: no-repeat;
         background-size: cover;
-      }
-
-      /* Video background */
-      #bg-video {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        min-width: 100%;
-        min-height: 100%;
-        z-index: -1;
-        object-fit: cover;
+        background-position: center;
       }
 
       .auth-wrapper {
@@ -120,11 +110,11 @@
         cursor: pointer;
         transition:
           transform 0.1s ease,
-          box-shadow 0.1s ease;
+          filter 0.1s ease;
       }
 
       .primary-btn:hover {
-        filter: brightness(1.1);
+        filter: brightness(1.2);
         transform: translateY(-1px);
       }
 
@@ -136,9 +126,13 @@
       }
 
       .footer-text a {
-        color: #a5c7ff; /* Adjusted for better visibility on glassmorphism */
+        color: #a5c7ff;
         font-weight: 700;
         text-decoration: none;
+      }
+
+      .footer-text a:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
@@ -157,7 +151,13 @@
                   d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"
                 />
               </svg>
-              <input type="email" id="username" name="username" required />
+              <input
+                type="email"
+                id="username"
+                name="username"
+                required
+                placeholder="Enter your email"
+              />
             </div>
           </div>
 
@@ -169,7 +169,13 @@
                   d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"
                 />
               </svg>
-              <input type="password" id="pwd1" name="password" required />
+              <input
+                type="password"
+                id="pwd1"
+                name="password"
+                required
+                placeholder="Enter password"
+              />
             </div>
           </div>
 
@@ -198,27 +204,30 @@
           const username = document.getElementById("username").value;
           const password = document.getElementById("pwd1").value;
 
-          // Note: Using a POST request is safer for credentials than query params
+          // Sending data as a POST request
           fetch("/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),
           })
-            .then((res) => res.json()) // Assuming your server returns JSON
+            .then((res) => res.json())
             .then((data) => {
               if (data.success) {
                 messageEl.textContent = "Login successful!";
                 messageEl.style.color = "#4ade80";
+
+                // Redirect to profile page
                 setTimeout(() => {
-                  window.location.href = "/home"; // Change to your actual home route
+                  window.location.href = "/profile";
                 }, 800);
               } else {
-                messageEl.textContent = data.message || "Invalid credentials";
+                messageEl.textContent =
+                  data.message || "Invalid email or password";
                 messageEl.style.color = "#f87171";
               }
             })
             .catch((err) => {
-              messageEl.textContent = "Server error";
+              messageEl.textContent = "Server error. Please try again.";
               messageEl.style.color = "#f87171";
             });
         });
