@@ -9,6 +9,20 @@
 // app.use((req, res) => {
 //     res.status(404).render("pageNotFound",{title:"Page Not Found"});
 // });
+// app.listen(3000, ()=>{
+//     console.log("server is running");
+// })
+// const express=require('express');
+// const app=express();
+// app.set("view engine",'ejs');
+// app.use(express.static("public"));
+// app.use(express.urlencoded({extended:true}));
+// app.get('/Welcome',(req,res)=>{
+//     res.render("Welcome",{title:"Welcome Page"});
+// })
+// app.use((req, res) => {
+//     res.status(404).render("pageNotFound",{title:"Page Not Found"});
+// });
 
 // app.listen(3000, ()=>{
 //     console.log("server is running");
@@ -190,12 +204,12 @@ app.get("/Welcome", (req, res) => {
 });
 
 // LOGIN PAGE (HTML)
-app.get("/loginPage", (req, res) => {
+app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "login.html"));
 });
 
 // SIGNUP PAGE (HTML)
-app.get("/signupPage", (req, res) => {
+app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "signup.html"));
 });
 
