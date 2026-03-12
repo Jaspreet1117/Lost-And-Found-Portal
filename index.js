@@ -98,7 +98,7 @@ const path = require("path");
 const app = express();
 const DATA_PATH = path.join(__dirname, "foundData.json");
 const LOST_DATA_PATH = path.join(__dirname, "lostData.json");
-const fs = require("fs");
+// const fs = require("fs");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true })); // This middleware parses form data
 const multer = require("multer");
