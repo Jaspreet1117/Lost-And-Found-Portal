@@ -1,0 +1,227 @@
+<!important: ensure you have an 'assets' or 'public' folder for your static files like images and videos>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title><%= typeof title !== 'undefined' ? title : "Login" %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+      /* Global Reset */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background-image: url("https://image.shutterstock.com/image-photo/keys-on-tiled-staircase-outdoors-260nw-2211129601.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+
+      /* Video background */
+      #bg-video {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -1;
+        object-fit: cover;
+      }
+
+      .auth-wrapper {
+        width: 100%;
+        max-width: 460px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .auth-card {
+        width: 100%;
+        background: rgba(80, 80, 80, 0.45);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        padding: 40px 48px 34px;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .auth-title {
+        font-size: 30px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 28px;
+        letter-spacing: 0.01em;
+      }
+
+      .field {
+        margin-bottom: 20px;
+      }
+
+      .field label {
+        display: block;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 6px;
+      }
+
+      .input-row {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+        padding-bottom: 6px;
+        gap: 8px;
+      }
+
+      .input-row svg {
+        flex-shrink: 0;
+        opacity: 0.75;
+        width: 18px;
+        height: 18px;
+        fill: rgba(255, 255, 255, 0.85);
+      }
+
+      .input-row input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        color: #ffffff;
+      }
+
+      .primary-btn {
+        width: 100%;
+        margin-top: 24px;
+        padding: 15px;
+        border: none;
+        border-radius: 999px;
+        background: rgb(23, 23, 106);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          transform 0.1s ease,
+          box-shadow 0.1s ease;
+      }
+
+      .primary-btn:hover {
+        filter: brightness(1.1);
+        transform: translateY(-1px);
+      }
+
+      .footer-text {
+        margin-top: 16px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.75);
+        text-align: center;
+      }
+
+      .footer-text a {
+        color: #a5c7ff; /* Adjusted for better visibility on glassmorphism */
+        font-weight: 700;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <h1 class="auth-title">Log In</h1>
+
+        <form id="loginForm">
+          <div class="field">
+            <label for="username">Email</label>
+            <div class="input-row">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"
+                />
+              </svg>
+              <input type="email" id="username" name="username" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="pwd1">Password</label>
+            <div class="input-row">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"
+                />
+              </svg>
+              <input type="password" id="pwd1" name="password" required />
+            </div>
+          </div>
+
+          <button type="submit" class="primary-btn">Log In</button>
+        </form>
+
+        <p
+          id="loginMessage"
+          class="footer-text"
+          style="min-height: 18px; margin-top: 10px"
+        ></p>
+
+        <p class="footer-text">
+          New here?
+          <a href="/signupPage">Create an account</a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const messageEl = document.getElementById("loginMessage");
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("pwd1").value;
+
+          // Note: Using a POST request is safer for credentials than query params
+          fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          })
+            .then((res) => res.json()) // Assuming your server returns JSON
+            .then((data) => {
+              if (data.success) {
+                messageEl.textContent = "Login successful!";
+                messageEl.style.color = "#4ade80";
+                setTimeout(() => {
+                  window.location.href = "/home"; // Change to your actual home route
+                }, 800);
+              } else {
+                messageEl.textContent = data.message || "Invalid credentials";
+                messageEl.style.color = "#f87171";
+              }
+            })
+            .catch((err) => {
+              messageEl.textContent = "Server error";
+              messageEl.style.color = "#f87171";
+            });
+        });
+    </script>
+  </body>
+</html>
