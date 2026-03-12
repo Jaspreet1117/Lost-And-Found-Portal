@@ -78,5 +78,33 @@
   {
     "username": "g",
     "password": "12"
+  },
+  {
+    "name": "Janki",
+    "email": "janki27poonam24@gmail.com",
+    "password": "1234",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
+  },
+  {
+    "name": "Amitabh",
+    "email": "amit@gmail.com",
+    "password": "1234",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
   }
 ]

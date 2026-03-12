@@ -24,42 +24,12 @@
         color: #333;
       }
 
-      /* SIDEBAR */
-      .sidebar {
-        width: 120px;
-        background: linear-gradient(180deg, #05122c, #1e3a8a);
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding-top: 25px;
-        gap: 30px;
-        color: white;
-        z-index: 100;
-      }
-
-      .sidebar a {
-        color: white;
-        text-decoration: none;
-        font-size: 14px;
-        cursor: pointer;
-        transition: opacity 0.2s;
-      }
-
-      .sidebar a:hover {
-        opacity: 0.7;
-        text-decoration: underline;
-      }
-
       /* MAIN AREA */
       .main {
         flex: 1;
         padding: 20px 40px;
         background: #faf6f0;
-        margin: 20px 20px 20px 140px;
+        margin: 20px 20px 20px 20px;
         border-radius: 18px;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
       }
@@ -150,6 +120,7 @@
         cursor: pointer;
         font-weight: 500;
         transition: background 0.2s;
+        margin-right: 5px;
       }
 
       .profile-buttons .pass-btn {
@@ -162,7 +133,6 @@
         display: flex;
         gap: 40px;
       }
-
       .stats div {
         text-align: center;
         line-height: 1.4;
@@ -185,10 +155,6 @@
         color: #0f234d;
         border-bottom: 2px solid #e8dccb;
         display: inline-block;
-      }
-      .card p {
-        margin-bottom: 8px;
-        font-size: 15px;
       }
 
       /* MODALS */
@@ -227,6 +193,7 @@
         display: flex;
         justify-content: flex-end;
         gap: 10px;
+        margin-top: 10px;
       }
 
       .modal-buttons button {
@@ -240,18 +207,14 @@
         background: #1e3a8a;
         color: white;
       }
+      .cancel-btn {
+        background: #eee;
+        color: #333;
+      }
     </style>
   </head>
 
   <body>
-    <div class="sidebar">
-      <a href="/home">Home</a>
-      <a href="/lost">Lost</a>
-      <a href="/found">Found</a>
-      <a href="/messages">Messages</a>
-      <a href="/settings">Settings</a>
-    </div>
-
     <div class="main">
       <div class="cover">
         <img
@@ -274,11 +237,10 @@
           <div class="profile-info">
             <h3 id="name"><%= user.name %></h3>
             <p><%= user.role || 'Community Member' %></p>
-
             <div class="profile-buttons">
               <button onclick="openEdit()">Edit Profile</button>
               <button class="pass-btn" onclick="openPasswordBox()">
-                Security
+                Change Password
               </button>
             </div>
           </div>
@@ -334,13 +296,35 @@
 <%= user.bio %></textarea
         >
         <div class="modal-buttons">
-          <button onclick="closeEdit()">Cancel</button>
+          <button class="cancel-btn" onclick="closeEdit()">Cancel</button>
           <button class="save-btn" onclick="saveProfile()">Save Changes</button>
         </div>
       </div>
     </div>
 
+    <div class="modal" id="passwordModal">
+      <div class="modal-content">
+        <h3>Change Password</h3>
+        <input type="password" id="oldPass" placeholder="Current Password" />
+        <input type="password" id="newPass" placeholder="New Password" />
+        <input
+          type="password"
+          id="confirmPass"
+          placeholder="Confirm New Password"
+        />
+        <div class="modal-buttons">
+          <button class="cancel-btn" onclick="closePasswordBox()">
+            Cancel
+          </button>
+          <button class="save-btn" onclick="savePassword()">
+            Update Password
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
+      // Profile Modal Logic
       function openEdit() {
         document.getElementById("editModal").style.display = "flex";
       }
@@ -349,18 +333,41 @@
       }
 
       function saveProfile() {
-        // Local UI update logic
         const newName = document.getElementById("editName").value;
         if (newName) {
           document.getElementById("name").innerText = newName;
           document.getElementById("welcomeName").innerText = newName;
         }
-        // In a real app, you would fetch('/update-profile', { method: 'POST', body: ... })
+        // Integration point: fetch('/update-profile', ...)
         closeEdit();
       }
 
+      // Password Modal Logic
       function openPasswordBox() {
-        alert("Security settings coming soon!");
+        document.getElementById("passwordModal").style.display = "flex";
+      }
+      function closePasswordBox() {
+        document.getElementById("passwordModal").style.display = "none";
+      }
+
+      function savePassword() {
+        const oldPass = document.getElementById("oldPass").value;
+        const newPass = document.getElementById("newPass").value;
+        const confirmPass = document.getElementById("confirmPass").value;
+
+        if (!oldPass || !newPass || !confirmPass) {
+          alert("Please fill in all fields.");
+          return;
+        }
+
+        if (newPass !== confirmPass) {
+          alert("New passwords do not match!");
+          return;
+        }
+
+        // Integration point: fetch('/change-password', { method: 'POST', body: ... })
+        alert("Password change request submitted!");
+        closePasswordBox();
       }
     </script>
   </body>

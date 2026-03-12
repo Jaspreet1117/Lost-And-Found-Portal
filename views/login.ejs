@@ -142,7 +142,7 @@
       <div class="auth-card">
         <h1 class="auth-title">Log In</h1>
 
-        <form id="loginForm">
+        <form id="loginForm" action="/dashboard">
           <div class="field">
             <label for="username">Email</label>
             <div class="input-row">
@@ -190,7 +190,7 @@
 
         <p class="footer-text">
           New here?
-          <a href="/signupPage">Create an account</a>
+          <a href="/signup">Create an account</a>
         </p>
       </div>
     </div>
@@ -218,7 +218,7 @@
 
                 // Redirect to profile page
                 setTimeout(() => {
-                  window.location.href = "/profile";
+                  window.location.href = "/dashboard";
                 }, 800);
               } else {
                 messageEl.textContent =

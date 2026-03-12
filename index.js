@@ -108,7 +108,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-
+const session = require("express-session");
 const app = express();
 const DATA_PATH = path.join(__dirname, "foundData.json");
 const LOST_DATA_PATH = path.join(__dirname, "lostData.json");
@@ -127,6 +127,16 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(
+  session({
+    secret: "my_secret_key", // Choose a unique secret
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  }),
+);
+
+const USER_DATA_PATH = path.join(__dirname, "data.json");
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public/uploads/"); // Make sure this folder exists!
@@ -211,25 +221,47 @@ app.get("/login", (req, res) => {
 
 // SIGNUP PAGE (HTML)
 app.get("/signup", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "signup.ejs"));
-// res.render("signup",{title:"signup"});
+  // res.sendFile(path.join(__dirname, "views", "signup.ejs"));
+  res.render("signup", { title: "signup" });
 });
 
 // SIGNUP LOGIC
-app.get("/signup", (req, res) => {
-  let username = req.query.username;
-  let password = req.query.pwd1;
+// Add these at the top of app.js
+app.use(express.json());
 
-  let data = JSON.parse(fs.readFileSync("data.json"));
+app.post("/signup", (req, res) => {
+  const { fullname, username, password } = req.body;
+  const USER_DATA_PATH = path.join(__dirname, "data.json");
 
-  data.push({
-    username: username,
+  // 1. Read existing users
+  let users = [];
+  if (fs.existsSync(USER_DATA_PATH)) {
+    users = JSON.parse(fs.readFileSync(USER_DATA_PATH, "utf8") || "[]");
+  }
+
+  // 2. Check if user already exists
+  if (users.find((u) => u.email === username)) {
+    return res.json({ success: false, message: "User already exists!" });
+  }
+
+  // 3. Create new user object (Matching your profile.ejs keys)
+  const newUser = {
+    name: fullname, // Saved as 'name' for the profile
+    email: username, // Saved as 'email'
     password: password,
-  });
+    bio: "Helping the community find lost items!",
+    phone: "Not added yet",
+    campus: "Main Campus",
+    role: "Student",
+    stats: { lost: 0, found: 0, returned: 0 },
+  };
 
-  fs.writeFileSync("data.json", JSON.stringify(data, null, 2));
+  // 4. Save to file
+  users.push(newUser);
+  fs.writeFileSync(USER_DATA_PATH, JSON.stringify(users, null, 2));
 
-  res.send("User Registered Successfully");
+  // 5. Tell the frontend it worked
+  res.json({ success: true });
 });
 
 // LOGIN LOGIC
@@ -258,27 +290,40 @@ app.get("/signup", (req, res) => {
 // });
 
 // LOGIN LOGIC
-app.get("/login", (req, res) => {
-  let username = req.query.username;
-  let password = req.query.pwd1;
+// Make sure you have this middleware at the top of your app.js to read JSON
+app.use(express.json());
 
-  let data = JSON.parse(fs.readFileSync("data.json"));
+// app.post("/login", (req, res) => {
+//   // Use req.body because the frontend is sending a JSON object
+//   const { username, password } = req.body;
 
-  let found = false;
+//   let data = [];
+//   try {
+//     data = JSON.parse(fs.readFileSync("data.json", "utf8"));
+//   } catch (err) {
+//     return res.json({ success: false, message: "Database error" });
+//   }
 
-  for (let u of data) {
-    if (u.username == username && u.password == password) {
-      found = true;
-      break;
-    }
-  }
+//   // Check if the user exists.
+//   // Note: ensure your signup saved the email under the key 'email' or 'username'
+//   const user = data.find(
+//     (u) =>
+//       (u.email === username || u.username === username) &&
+//       u.password === password,
+//   );
 
-  if (found) {
-    res.send("Login Successful");
-  } else {
-    res.send("Login Failed");
-  }
-});
+//   if (user) {
+//     // If you are using express-session (highly recommended):
+//     if (req.session) {
+//       req.session.user = user;
+//     }
+
+//     // Send a JSON response back to the fetch script
+//     res.json({ success: true });
+//   } else {
+//     res.json({ success: false, message: "Invalid email or password" });
+//   }
+// });
 
 // 404 PAGE
 
@@ -355,23 +400,37 @@ app.post("/submit-lost-report", upload.single("itemImage"), (req, res) => {
   });
 });
 
+// --- FIXED LOGIN LOGIC ---
+app.post("/login", (req, res) => {
+  const { username, password } = req.body; // username is the email from your form
+
+  // Read users from your JSON file
+  const users = JSON.parse(fs.readFileSync(USER_DATA_PATH, "utf8") || "[]");
+
+  // Find the specific user
+  const foundUser = users.find(
+    (u) => u.email === username && u.password === password,
+  );
+
+  if (foundUser) {
+    // SAVE THE FOUND USER OBJECT INTO THE SESSION
+    req.session.user = foundUser;
+    res.json({ success: true });
+  } else {
+    res.json({ success: false, message: "Invalid email or password" });
+  }
+});
+
+// --- FIXED PROFILE ROUTE ---
 app.get("/profile", (req, res) => {
-  const userData = {
-    name: "Japnoor Kaur",
-    email: "japnoor@email.com",
-    phone: "9876543210",
-    campus: "Main Campus",
-    bio: "Student at college helping people recover lost items.",
-    role: "Student",
-    profileImage: "images/profileBlue.jpeg",
-    coverImage: "images/blue5.jpeg",
-    stats: {
-      lost: 5,
-      found: 3,
-      returned: 2,
-    },
-  };
-  res.render("profile", { user: userData });
+  // Check if a user is logged in via session
+  if (req.session.user) {
+    // Render the profile using the session data (NOT hardcoded data)
+    res.render("profile", { user: req.session.user });
+  } else {
+    // If no session exists, send them back to login
+    res.redirect("/login");
+  }
 });
 app.use((req, res) => {
   res.status(404).render("pageNotFound", { title: "Page Not Found" });
