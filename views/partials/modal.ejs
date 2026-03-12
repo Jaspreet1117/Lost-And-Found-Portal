@@ -1,0 +1,48 @@
+<div id="itemModal" class="modal-overlay">
+  <div class="modal-container">
+    <button class="modal-close" id="closeModal">&times;</button>
+
+    <div class="modal-grid">
+      <div class="modal-visuals">
+        <div class="main-img-wrapper">
+          <img id="modalImg" src="" alt="Item" />
+          <span id="modalBadge" class="status-pill"></span>
+        </div>
+      </div>
+
+      <div class="modal-details">
+        <div class="header-group">
+          <h1 id="modalTitle"></h1>
+          <span id="modalCategory" class="category-tag"></span>
+        </div>
+
+        <div class="meta-info">
+          <div class="meta-item">
+            <i class="fa-solid fa-location-crosshairs"></i>
+            <span
+              ><strong>Location:</strong> <span id="modalLocation"></span
+            ></span>
+          </div>
+          <div class="meta-item">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span><strong>Date:</strong> <span id="modalDate"></span></span>
+          </div>
+        </div>
+
+        <div class="description-box">
+          <h3>Item Description</h3>
+          <p id="modalDesc"></p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-primary">
+            <i class="fa-solid fa-paper-plane"></i> Contact Poster
+          </button>
+          <button class="btn-secondary">
+            <i class="fa-solid fa-heart"></i> Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

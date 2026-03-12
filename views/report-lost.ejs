@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Lost Item</title>
+    <link rel="stylesheet" href="/css/post_lost_found.css" />
+    <script
+      src="https://kit.fontawesome.com/your-code.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <main>
+      <div class="form-body">
+        <div class="header">
+          <h2 style="margin-bottom: 2px">Report a Lost Item</h2>
+          <p style="margin: 0">
+            Fill out the details below to help us find your missing item 😊.
+          </p>
+        </div>
+        <hr />
+
+        <form
+          action="/submit-lost-report"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <div class="sections">
+            <h3>Section 1: Contact Information</h3>
+            <div class="section1">
+              <div class="fullName sec1">
+                <label>First Name</label>
+                <input type="text" name="firstName" required />
+              </div>
+              <div class="lastName sec1">
+                <label>Last Name</label>
+                <input type="text" name="lastName" required />
+              </div>
+              <div class="phoneNumber sec1">
+                <label>Phone Number</label>
+                <input type="tel" name="phone" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="sections">
+            <h3>Section 2: Item Details</h3>
+            <div class="section2">
+              <div class="left">
+                <div class="item-category sec1">
+                  <label for="category">Item Category</label>
+                  <select id="category" name="category">
+                    <option value="Accessories">Accessories</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Keys">Keys</option>
+                    <option value="Documents">Documents</option>
+                  </select>
+                </div>
+                <div class="item-description sec1">
+                  <label>Item Description (Brand, Color, Marks)</label>
+                  <textarea
+                    name="description"
+                    maxlength="500"
+                    placeholder="e.g. Blue Nike backpack with a small tear on the left pocket..."
+                  ></textarea>
+                </div>
+              </div>
+              <div class="right">
+                <div class="Item-image">
+                  <label>Item Image (Optional)</label>
+                  <input type="file" name="itemImage" accept="image/*" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sections">
+            <h3>Section 3: Loss Location & Date</h3>
+            <div class="section3">
+              <div class="up">
+                <div class="date">
+                  <label>Date Lost</label>
+                  <input type="date" name="dateLost" required />
+                </div>
+                <div class="location">
+                  <label>Location Lost</label>
+                  <input
+                    type="text"
+                    name="location"
+                    placeholder="specify area, street, or landmark"
+                    required
+                  />
+                </div>
+                <div class="map">
+                  <label>&nbsp;</label>
+                  <button type="button" class="btn-map">Pin on map</button>
+                </div>
+              </div>
+              <div class="down">
+                <div class="lost-location">
+                  <label>Specific details about lost location</label>
+                  <input
+                    type="text"
+                    name="locationDetails"
+                    placeholder="Room number, floor, or specific spot"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="submit-btn">Post Lost Report</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

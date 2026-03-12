@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/css/login.css">
-  <!-- <style>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/login.css" />
+    <!-- <style>
     * {
       box-sizing: border-box;
       margin: 0;
@@ -158,54 +158,61 @@
       text-decoration: underline;
     }
   </style> -->
-</head>
+  </head>
 
-<body>
-  <!-- <video autoplay muted loop id="bg-video">
+  <body>
+    <!-- <video autoplay muted loop id="bg-video">
     <source src="background.mp4" type="video/mp4">
   </video> -->
 
-  <div class="auth-wrapper">
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <h1 class="auth-title">Log In</h1>
 
-    <div class="auth-card">
-      <h1 class="auth-title">Log In</h1>
-
-      <form id="loginForm">
-        <!-- Email -->
-        <div class="field">
-          <label for="username">Email</label>
-          <div class="input-row">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
-            </svg>
-            <input type="text" id="username" required placeholder="">
+        <form id="loginForm">
+          <!-- Email -->
+          <div class="field">
+            <label for="username">Email</label>
+            <div class="input-row">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"
+                />
+              </svg>
+              <input type="text" id="username" required placeholder="" />
+            </div>
           </div>
-        </div>
 
-        <!-- Password -->
-        <div class="field">
-          <label for="pwd1">Password</label>
-          <div class="input-row">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-            </svg>
-            <input type="password" id="pwd1" required placeholder="">
+          <!-- Password -->
+          <div class="field">
+            <label for="pwd1">Password</label>
+            <div class="input-row">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"
+                />
+              </svg>
+              <input type="password" id="pwd1" required placeholder="" />
+            </div>
           </div>
-        </div>
 
-        <button type="submit" class="primary-btn">Log In</button>
-      </form>
+          <button type="submit" class="primary-btn">Log In</button>
+        </form>
 
-      <p id="loginMessage" class="footer-text" style="min-height: 18px; margin-top: 10px;"></p>
+        <p
+          id="loginMessage"
+          class="footer-text"
+          style="min-height: 18px; margin-top: 10px"
+        ></p>
 
-      <p class="footer-text">
-        New here?
-        <a href="/signupPage">Create an account</a>
-      </p>
+        <p class="footer-text">
+          New here?
+          <a href="/signupPage">Create an account</a>
+        </p>
+      </div>
     </div>
-  </div>
 
-  <!-- <script>
+    <!-- <script>
     document.getElementById("loginForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
@@ -237,44 +244,43 @@
         });
     });
   </script> -->
-  <script>
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
 
-  e.preventDefault();
+          const messageEl = document.getElementById("loginMessage");
+          messageEl.textContent = "";
 
-  const messageEl = document.getElementById("loginMessage");
-  messageEl.textContent = "";
+          let username = document.getElementById("username").value;
+          let password = document.getElementById("pwd1").value;
 
-  let username = document.getElementById("username").value;
-  let password = document.getElementById("pwd1").value;
+          fetch(
+            "/login?username=" +
+              encodeURIComponent(username) +
+              "&pwd1=" +
+              encodeURIComponent(password),
+          )
+            .then((res) => res.text())
+            .then((data) => {
+              if (data.trim() === "Login Successful") {
+                messageEl.textContent = "Login successful!";
+                messageEl.style.color = "#4ade80";
 
-  fetch("/login?username=" + encodeURIComponent(username) + "&pwd1=" + encodeURIComponent(password))
-    .then(res => res.text())
-    .then(data => {
-
-      if (data.trim() === "Login Successful") {
-
-        messageEl.textContent = "Login successful!";
-        messageEl.style.color = "#4ade80";
-
-        setTimeout(() => {
-          window.location.href = "";// here we have to link to the home page 
-        }, 800);
-
-      } else {
-
-        messageEl.textContent = "Invalid username or password";
-        messageEl.style.color = "#f87171";
-
-      }
-
-    })
-    .catch(err => {
-      messageEl.textContent = "Server error";
-      messageEl.style.color = "#f87171";
-    });
-
-});
-</script>
-</body>
+                setTimeout(() => {
+                  window.location.href = ""; // here we have to link to the home page
+                }, 800);
+              } else {
+                messageEl.textContent = "Invalid username or password";
+                messageEl.style.color = "#f87171";
+              }
+            })
+            .catch((err) => {
+              messageEl.textContent = "Server error";
+              messageEl.style.color = "#f87171";
+            });
+        });
+    </script>
+  </body>
 </html>
