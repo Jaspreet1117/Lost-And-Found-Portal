@@ -112,7 +112,7 @@ const path = require("path");
 const app = express();
 const DATA_PATH = path.join(__dirname, "foundData.json");
 const LOST_DATA_PATH = path.join(__dirname, "lostData.json");
-const fs = require("fs");
+// const fs = require("fs");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true })); // This middleware parses form data
 const multer = require("multer");
@@ -205,7 +205,8 @@ app.get("/Welcome", (req, res) => {
 
 // LOGIN PAGE (HTML)
 app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "login.html"));
+  // res.sendFile(path.join(__dirname, "views", "login.ejs"));
+  res.render("login");
 });
 
 // SIGNUP PAGE (HTML)
@@ -279,10 +280,8 @@ app.get("/login", (req, res) => {
 });
 
 // 404 PAGE
-app.use((req, res) => {
-  res.status(404).render("pageNotFound", { title: "Page Not Found" });
-});
 
+//dashboard and forms
 app.get("/dashboard", (req, res) => {
   res.render("dashboard", { listings: listings });
 });
@@ -353,6 +352,9 @@ app.post("/submit-lost-report", upload.single("itemImage"), (req, res) => {
       res.redirect("/dashboard");
     });
   });
+});
+app.use((req, res) => {
+  res.status(404).render("pageNotFound", { title: "Page Not Found" });
 });
 
 app.listen(3000, () => {
