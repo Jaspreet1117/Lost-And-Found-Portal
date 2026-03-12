@@ -1,0 +1,214 @@
+:root {
+  --primary-blue: #1a3d63;
+  --teal: #1fbba6;
+  --gold: #f3ae3d;
+  --bg-light: #cee3f1;
+  --lost-red: #dc3545;
+  --found-green: #28a745;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-light);
+  /* display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; */
+}
+
+.navbar {
+  background: white;
+  padding: 10px 40px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-area {
+  font-weight: 800;
+  color: var(--primary-blue);
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #444;
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-left: 20px;
+}
+
+.active-link {
+  background: var(--teal);
+  color: white !important;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+/* Layout */
+.main-layout {
+  display: flex;
+}
+.side-body {
+  flex: 1;
+  padding: 0 40px 40px 40px;
+}
+
+main {
+  width: 90%;
+  height: 80vh;
+  margin-top: 5vh;
+  margin-left: auto;
+  margin-right: auto;
+  /* border: 2px solid black; */
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  /* padding: 5% 10%; */
+}
+.form-body {
+  padding: 0.5% 2%;
+}
+form {
+  display: flex;
+  flex-direction: column;
+}
+.section1 {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.sec1 {
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+}
+label {
+  font-weight: 500;
+  font-size: medium;
+  margin: 2px 0px 4px 0px;
+}
+input {
+  width: 100%;
+  height: 25px;
+  border-radius: 5px;
+  border: 1px solid rgb(172, 169, 169);
+}
+.section2 {
+  display: flex;
+  flex-direction: row;
+  height: 30%;
+}
+.left,
+.right {
+  width: 50%;
+  height: 200px;
+}
+.left {
+  display: flex;
+  flex-direction: column;
+}
+.item-category {
+  height: 30%;
+  width: 80%;
+}
+.item-description {
+  height: 70%;
+  width: 80%;
+}
+.left select {
+  width: 100%;
+  height: 80%;
+  border-radius: 5px;
+  border: 1px solid rgb(172, 169, 169);
+  font-size: 15px;
+}
+.Item-image input {
+  height: 170px;
+}
+textarea {
+  width: 100%;
+  height: 120px;
+  border: 1px solid rgb(172, 169, 169);
+  border-radius: 5px;
+}
+h3 {
+  margin: 7px 0px 5px 0px;
+}
+/* .sections {
+  margin-top: 50px;
+} */
+.section3 {
+  display: flex;
+  flex-direction: column;
+  height: 25%;
+  width: 100%;
+}
+.up {
+  display: flex;
+  flex-direction: row;
+  height: 50%;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+.date {
+  width: 25%;
+}
+.location {
+  width: 50%;
+}
+.map {
+  width: 15%;
+}
+/* Styling for the new submit area */
+.form-actions {
+  margin-top: 30px;
+  padding-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.submit-btn {
+  background-color: var(--lost-red);
+  color: white;
+  padding: 12px 40px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: #b22b37;
+}
+
+.btn-map {
+  width: 100%;
+  height: 30px;
+  background: white;
+  border: 1px solid var(--primary-blue);
+  color: var(--primary-blue);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Fix main height to allow scrolling if content grows */
+main {
+  height: auto; /* Changed from 80vh to allow for content */
+  min-height: 80vh;
+  padding-bottom: 20px;
+}

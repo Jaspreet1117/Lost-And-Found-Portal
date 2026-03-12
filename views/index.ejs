@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Welcome | Lost & Found</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <style>
+      .welcome-hero {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background:
+          linear-gradient(rgba(26, 61, 99, 0.8), rgba(26, 61, 99, 0.8)),
+          url("https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1200")
+            center/cover;
+        color: white;
+        text-align: center;
+      }
+      .welcome-hero h1 {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+      .get-started {
+        padding: 15px 40px;
+        background: var(--teal);
+        color: white;
+        text-decoration: none;
+        border-radius: 30px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        transition: 0.3s;
+      }
+      .get-started:hover {
+        background: var(--gold);
+      }
+    </style>
+  </head>
+  <body>
+    <section class="welcome-hero">
+      <h1>Find What's Lost.<br />Return What's Found.</h1>
+      <p>
+        A community-driven platform to reunite people with their belongings.
+      </p>
+      <br />
+      <a href="/dashboard" class="get-started">Enter Dashboard</a>
+    </section>
+  </body>
+</html>
