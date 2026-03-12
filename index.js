@@ -211,7 +211,8 @@ app.get("/login", (req, res) => {
 
 // SIGNUP PAGE (HTML)
 app.get("/signup", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "signup.html"));
+  res.sendFile(path.join(__dirname, "views", "signup.ejs"));
+// res.render("signup",{title:"signup"});
 });
 
 // SIGNUP LOGIC
@@ -356,7 +357,6 @@ app.post("/submit-lost-report", upload.single("itemImage"), (req, res) => {
 app.use((req, res) => {
   res.status(404).render("pageNotFound", { title: "Page Not Found" });
 });
-
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
