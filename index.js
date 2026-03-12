@@ -353,6 +353,23 @@ app.post("/submit-lost-report", upload.single("itemImage"), (req, res) => {
     });
   });
 });
+
+// Example Express route
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  const userFromDb = {
+    name: "Japnoor Kaur",
+    email: username,
+    bio: "Student at college helping people recover lost items.",
+    phone: "9876543210",
+    campus: "Main Campus",
+    stats: { lost: 5, found: 3, returned: 2 },
+  };
+
+  // 3. Render the profile and pass the user object
+  res.render("profile", { user: userFromDb });
+});
 app.use((req, res) => {
   res.status(404).render("pageNotFound", { title: "Page Not Found" });
 });
