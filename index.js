@@ -109,6 +109,8 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const session = require("express-session");
+const passport = require('passport');
+require('./auth/google');
 const app = express();
 const DATA_PATH = path.join(__dirname, "foundData.json");
 const LOST_DATA_PATH = path.join(__dirname, "lostData.json");
@@ -135,6 +137,10 @@ app.use(
     cookie: { secure: false }, // Set to true if using HTTPS
   }),
 );
+
+// Initialize Passport.js
+app.use(passport.initialize());
+app.use(passport.session());
 
 const USER_DATA_PATH = path.join(__dirname, "data.json");
 const storage = multer.diskStorage({
@@ -432,9 +438,25 @@ app.get("/profile", (req, res) => {
     res.redirect("/login");
   }
 });
+
+// --- GOOGLE AUTH ROUTES ---
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Successful authentication
+    req.session.user = req.user;
+    res.redirect('/dashboard');
+  }
+);
+
 app.use((req, res) => {
   res.status(404).render("pageNotFound", { title: "Page Not Found" });
 });
+
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
