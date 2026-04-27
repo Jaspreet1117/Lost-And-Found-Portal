@@ -106,5 +106,121 @@
       "found": 0,
       "returned": 0
     }
+  },
+  {
+    "name": "Jigyasa Jain",
+    "email": "jainajigyasa@gmail.com",
+    "password": "123456",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
+  },
+  {
+    "name": "abcd",
+    "email": "abcd@gmail.com",
+    "password": "1234",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
+  },
+  {
+    "name": "heer",
+    "email": "heer@gmail.com",
+    "password": "heerheer",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
+  },
+  {
+    "name": "ivani",
+    "email": "ivani@gmail.com",
+    "password": "ivani@",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
+  },
+  {
+    "name": "sanvi",
+    "email": "sanvi@gmail.com",
+    "password": "sanvi",
+    "profilePic": "/uploads/1777235377111.png",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
+  },
+  {
+    "name": "priyanka",
+    "email": "priyanka@gmail.com",
+    "password": "priyanka",
+    "profilePic": "/uploads/1777238166874.png",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
+  },
+  {
+    "name": "Jaspreet",
+    "email": "jaspreet1117.becse24@chitkara.com",
+    "password": "1234",
+    "profilePic": "/uploads/1777295095184.jpg",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
+  },
+  {
+    "name": "qw",
+    "email": "qw@gmail.com",
+    "password": "qw",
+    "profilePic": "/images/default.png",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
   }
 ]

@@ -1,109 +1,42 @@
-// const express=require('express');
-// const app=express();
-// app.set("view engine",'ejs');
-// app.use(express.static("public"));
-// app.use(express.urlencoded({extended:true}));
-// app.get('/Welcome',(req,res)=>{
-//     res.render("Welcome",{title:"Welcome Page"});
+//code for signup page to mongodb setup
+// ===== MONGODB CONNECTION (ADD THIS) =====
+const mongoose = require("mongoose");
+
+// mongoose.connect("mongodb://127.0.0.1:27017/lostfoundDB", {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
 // })
-// app.use((req, res) => {
-//     res.status(404).render("pageNotFound",{title:"Page Not Found"});
-// });
-// app.listen(3000, ()=>{
-//     console.log("server is running");
-// })
-// const express=require('express');
-// const app=express();
-// app.set("view engine",'ejs');
-// app.use(express.static("public"));
-// app.use(express.urlencoded({extended:true}));
-// app.get('/Welcome',(req,res)=>{
-//     res.render("Welcome",{title:"Welcome Page"});
-// })
-// app.use((req, res) => {
-//     res.status(404).render("pageNotFound",{title:"Page Not Found"});
-// });
+// .then(() => console.log("MongoDB Connected ✅"))
+// .catch(err => console.log(err));
+mongoose.connect("mongodb://127.0.0.1:27017/lostfoundDB")
+  .then(() => console.log("MongoDB Connected ✅"))
+  .catch(err => console.log(err));
 
-// app.listen(3000, ()=>{
-//     console.log("server is running");
-// })
+// ===== USER SCHEMA (ADD THIS) =====
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  password: String,
+  profilePic: String,
+  bio: String,
+  phone: String,
+  campus: String,
+  role: String,
+  stats: {
+    lost: Number,
+    found: Number,
+    returned: Number,
+  }
+});
 
-/////////////////
-// const express = require('express');
-// const fs = require('fs');
+const User = mongoose.model("User", userSchema);
 
-// const app = express();
-
-// app.set("view engine",'ejs');
-// app.use(express.static("public"));
-// app.use(express.urlencoded({extended:true}));
-
-// // CORS FIX
-// app.use((req,res,next)=>{
-// res.setHeader("Access-Control-Allow-Origin","*");
-// res.setHeader("Access-Control-Allow-Methods","GET,POST");
-// next();
-// });
-
-// // SIGNUP
-// app.get("/signup",(req,res)=>{
-
-// let username = req.query.username;
-// let password = req.query.pwd1;
-
-// let data = JSON.parse(fs.readFileSync("data.json"));
-
-// data.push({
-// username:username,
-// password:password
-// });
-
-// fs.writeFileSync("data.json",JSON.stringify(data,null,2));
-
-// res.send("User Registered Successfully");
-
-// });
-
-// // LOGIN
-// app.get("/login",(req,res)=>{
-
-// let username = req.query.username;
-// let password = req.query.pwd1;
-
-// let data = JSON.parse(fs.readFileSync("data.json"));
-
-// let found=false;
-
-// for(let u of data){
-// if(u.username==username && u.password==password){
-// found=true;
-// break;
-// }
-// }
-
-// if(found){
-// res.send("Login Successful");
-// }
-// else{
-// res.send("Login Failed");
-// }
-
-// });
+//.env file ki line
+require('dotenv').config();
 
 // // WELCOME PAGE (friend ka code)
-// app.get('/Welcome',(req,res)=>{
-//     res.render("Welcome",{title:"Welcome Page"});
-// })
 
-// // 404 PAGE
-// app.use((req, res) => {
-//     res.status(404).render("pageNotFound",{title:"Page Not Found"});
-// });
-
-// app.listen(3000, ()=>{
-//     console.log("Server running on http://localhost:3000");
-// });
-
+//Jaspreet code
 /////////////////////////
 const express = require("express");
 const fs = require("fs");
@@ -235,7 +168,8 @@ app.get("/signup", (req, res) => {
 // Add these at the top of app.js
 app.use(express.json());
 
-app.post("/signup", (req, res) => {
+// app.post("/signup", upload.single("profilePic"), (req, res) => {
+  app.post("/signup", upload.single("profilePic"), (req, res) => {
   const { fullname, username, password } = req.body;
   const USER_DATA_PATH = path.join(__dirname, "data.json");
 
@@ -255,6 +189,9 @@ app.post("/signup", (req, res) => {
     name: fullname, // Saved as 'name' for the profile
     email: username, // Saved as 'email'
     password: password,
+
+    profilePic: req.file ? `/uploads/${req.file.filename}` : "/images/default.png",
+
     bio: "Helping the community find lost items!",
     phone: "Not added yet",
     campus: "Main Campus",
@@ -265,71 +202,38 @@ app.post("/signup", (req, res) => {
   // 4. Save to file
   users.push(newUser);
   fs.writeFileSync(USER_DATA_PATH, JSON.stringify(users, null, 2));
+  ////////////////////////////(here added signup to mongodb code)
+  // ===== SAVE USER TO MONGODB (ADD THIS) =====
+const mongoUser = new User({
+  name: fullname,
+  email: username,
+  password: password,
+  profilePic: req.file 
+    ? `/uploads/${req.file.filename}` 
+    : "/images/default.png",
+  bio: "Helping the community find lost items!",
+  phone: "Not added yet",
+  campus: "Main Campus",
+  role: "Student",
+  stats: { lost: 0, found: 0, returned: 0 },
+});
+
+mongoUser.save()
+  .then(() => console.log("User saved to MongoDB ✅"))
+  .catch(err => console.log(err));
+  //////////////////////////////(ended here)
 
   // 5. Tell the frontend it worked
   res.json({ success: true });
 });
 
-// LOGIN LOGIC
-// app.get("/login", (req, res) => {
 
-//   let username = req.query.username;
-//   let password = req.query.pwd1;
-
-//   let data = JSON.parse(fs.readFileSync("data.json"));
-
-//   let found = false;
-
-//   for (let u of data) {
-//     if (u.username == username && u.password == password) {
-//       found = true;
-//       break;
-//     }
-//   }
-
-//   if (found) {
-//     res.redirect("/Welcome");
-//   } else {
-//     res.send("Login Failed");
-//   }
-
-// });
 
 // LOGIN LOGIC
 // Make sure you have this middleware at the top of your app.js to read JSON
 app.use(express.json());
 
-// app.post("/login", (req, res) => {
-//   // Use req.body because the frontend is sending a JSON object
-//   const { username, password } = req.body;
 
-//   let data = [];
-//   try {
-//     data = JSON.parse(fs.readFileSync("data.json", "utf8"));
-//   } catch (err) {
-//     return res.json({ success: false, message: "Database error" });
-//   }
-
-//   // Check if the user exists.
-//   // Note: ensure your signup saved the email under the key 'email' or 'username'
-//   const user = data.find(
-//     (u) =>
-//       (u.email === username || u.username === username) &&
-//       u.password === password,
-//   );
-
-//   if (user) {
-//     // If you are using express-session (highly recommended):
-//     if (req.session) {
-//       req.session.user = user;
-//     }
-
-//     // Send a JSON response back to the fetch script
-//     res.json({ success: true });
-//   } else {
-//     res.json({ success: false, message: "Invalid email or password" });
-//   }
-// });
 
 // 404 PAGE
 
@@ -407,6 +311,28 @@ app.post("/submit-lost-report", upload.single("itemImage"), (req, res) => {
 });
 
 // --- FIXED LOGIN LOGIC ---
+/////////////////(login using mongodb(jigyasa))
+// ===== MONGODB LOGIN (ADD THIS ABOVE EXISTING LOGIN) =====
+app.post("/login", async (req, res, next) => {
+  const { username, password } = req.body;
+
+  try {
+    const mongoUser = await User.findOne({ email: username });
+
+    if (mongoUser && mongoUser.password === password) {
+      req.session.user = mongoUser;
+      return res.json({ success: true });
+    }
+
+    // Agar MongoDB me nahi mila → next login (JSON wala) run hoga
+    next();
+
+  } catch (err) {
+    console.log(err);
+    next();
+  }
+});
+///////////////////(code ended (login to mongodb))
 app.post("/login", (req, res) => {
   const { username, password } = req.body; // username is the email from your form
 
