@@ -222,5 +222,20 @@
       "found": 0,
       "returned": 0
     }
+  },
+  {
+    "name": "Jaspreet ",
+    "email": "jaspreet1117.becse24@chitkara.edu.in",
+    "password": "jaspreet",
+    "profilePic": "/images/default.png",
+    "bio": "Helping the community find lost items!",
+    "phone": "Not added yet",
+    "campus": "Main Campus",
+    "role": "Student",
+    "stats": {
+      "lost": 0,
+      "found": 0,
+      "returned": 0
+    }
   }
 ]
