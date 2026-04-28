@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
+  userId: {
+  type: String,
+  unique: true,
+},
   password: String,
 
   profilePic: {
@@ -145,7 +149,7 @@ app.get("/signup", (req, res) => res.render("signup"));
 // POST /signup
 app.post("/signup", upload.single("profilePic"), async (req, res) => {
   try {
-    const { fullname, username, password } = req.body;
+    const { fullname, username, password, userId } = req.body;
 
     if (!fullname || !username || !password) {
       return res
@@ -154,11 +158,19 @@ app.post("/signup", upload.single("profilePic"), async (req, res) => {
     }
 
     const existing = await User.findOne({ email: username });
+    
     if (existing) {
       return res
         .status(409)
         .json({ success: false, message: "Email already registered" });
     }
+    const existingUserId = await User.findOne({ userId });
+if (existingUserId) {
+  return res.status(409).json({
+    success: false,
+    message: "User ID already taken",
+  });
+}
 
     const hashed = await bcrypt.hash(password, 10);
     const profilePic = req.file
@@ -169,6 +181,7 @@ app.post("/signup", upload.single("profilePic"), async (req, res) => {
       name: fullname,
       email: username,
       password: hashed,
+      userId,
       profilePic,
       provider: "local",
     });

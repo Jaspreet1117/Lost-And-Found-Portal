@@ -206,6 +206,9 @@
           <div class="field">
             <input type="email" id="username" placeholder="Email" required />
           </div>
+          <div class="field">
+            <input type="text" id="userId" placeholder="User ID" required />
+          </div>
 
           <div class="field">
             <input type="password" id="pwd1" placeholder="Password" required />
@@ -277,6 +280,10 @@
             "username",
             document.getElementById("username").value,
           );
+          formData.append(
+            "userId",
+             document.getElementById("userId").value
+            );
           formData.append("password", pwd1);
           if (fileInput.files[0])
             formData.append("profilePic", fileInput.files[0]);
