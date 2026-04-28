@@ -119,6 +119,16 @@
       opacity: 0.7;
       transform: translateY(0);
     }
+    /* Force full cover */
+#preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50%;
+}
 
     /* Upload PNG starts below the circle */
     .upload-icon {
@@ -150,6 +160,31 @@
       font-weight: 700;
       text-decoration: none;
     }
+    /* Make image fully cover circle */
+    /* wrapper to control overflow properly */
+.preview-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  position: absolute;
+}
+
+/* actual image */
+#preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* fix upload icon */
+/* .upload-icon {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+  left: 50%;
+  /* transform: translate(-50%, 100%); */
+/* } */ 
   </style>
 </head>
 
@@ -161,8 +196,9 @@
   <form id="signupForm">
     <div class="profile-wrapper">
       <div class="image-container" id="imageContainer">
-        <img id="preview" src="./images/camera_icon.webp" alt="profile">
-        <img class="upload-icon" src="./images/upload.png" alt="upload" style = "background-size:cover; width:100%; height:100%;">
+        <div class="preview-wrapper"><img id="preview" src="./images/camera_icon.webp" alt="profile"></div>
+        <!-- <img id="preview" src="./images/camera_icon.webp" alt="profile"> -->
+        <img class="upload-icon" src="./images/upload2.jpeg" alt="upload" style="width: 100%; height: 100%; object-fit: cover;">
       </div>
       <input type="file" id="profilePic" accept="image/*" style="display:none;">
     </div>
