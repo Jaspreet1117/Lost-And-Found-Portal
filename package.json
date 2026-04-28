@@ -10,10 +10,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ejs": "^5.0.1",
+    "body-parser": "^2.2.2",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^17.4.2",
+    "ejs": "^5.0.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "mongoose": "^9.5.0",
+<<<<<<< HEAD
     "multer": "^2.1.1"
+=======
+    "multer": "^2.1.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^9.0.1"
+>>>>>>> bdc1cfa0a74fe605202d844b445910e9c29e6b6f
   }
 }

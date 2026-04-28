@@ -1,236 +1,214 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <title><%= typeof title !== 'undefined' ? title : "Login" %></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+    <meta charset="UTF-8">
+    <title>login </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-      /* Global Reset */
       * {
-        box-sizing: border-box;
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
       }
 
+      /* Background */
       body {
-        font-family:
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          sans-serif;
-        min-height: 100vh;
+        height: 100vh;
         display: flex;
-        align-items: center;
         justify-content: center;
-        color: #ffffff;
-        /* Using your chosen background image */
-        background-image: url("https://i.pinimg.com/1200x/41/74/b9/4174b96d7a37d5982fe53cba5343beab.jpg");
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-      }
-
-      .auth-wrapper {
-        width: 100%;
-        max-width: 460px;
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
         align-items: center;
-      }
-
-      .auth-card {
-        width: 100%;
-        background: rgba(80, 80, 80, 0.45);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        border-radius: 22px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        padding: 40px 48px 34px;
-        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #dde5ed 0%, #d0d6e6 100%);
         position: relative;
         overflow: hidden;
       }
 
-      .auth-title {
-        font-size: 30px;
-        font-weight: 600;
+      /* Animated circles */
+      body::before {
+        content: "";
+        position: fixed;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        z-index: -1;
+        animation: float 13s infinite ease-in-out;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        bottom: -30%;
+        left: -5%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        z-index: -1;
+        animation: float 25s infinite ease-in-out reverse;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(50px); }
+      }
+
+      /* Card */
+      .card {
+        width: 350px;
+        padding: 35px;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        color: white;
+      }
+
+      /* Title */
+      .card h2 {
         text-align: center;
-        margin-bottom: 28px;
-        letter-spacing: 0.01em;
+        margin-bottom: 25px;
       }
 
-      .field {
-        margin-bottom: 20px;
+      /* Inputs */
+      .input-group {
+        margin-bottom: 18px;
       }
 
-      .field label {
-        display: block;
+      .input-group label {
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.85);
-        margin-bottom: 6px;
+        opacity: 0.8;
       }
 
-      .input-row {
-        display: flex;
-        align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.55);
-        padding-bottom: 6px;
-        gap: 8px;
-      }
-
-      .input-row svg {
-        flex-shrink: 0;
-        opacity: 0.75;
-        width: 18px;
-        height: 18px;
-        fill: rgba(255, 255, 255, 0.85);
-      }
-
-      .input-row input {
-        flex: 1;
-        background: transparent;
-        border: none;
-        outline: none;
-        font-size: 16px;
-        color: #ffffff;
-      }
-
-      .primary-btn {
+      .input-group input {
         width: 100%;
-        margin-top: 24px;
-        padding: 15px;
         border: none;
-        border-radius: 999px;
-        background: rgb(23, 23, 106);
-        color: #ffffff;
+        border-bottom: 1px solid white;
+        background: transparent;
+        color: white;
+        padding: 8px 0;
+        outline: none;
+      }
+
+      /* Login Button */
+      .btn {
+        width: 100%;
+        padding: 12px;
+        border-radius: 25px;
+        border: none;
+        background: #1e1b6b;
+        color: white;
+        margin-top: 15px;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        opacity: 0.9;
+      }
+
+      /* Divider */
+      .divider {
+        text-align: center;
+        margin: 15px 0;
+        font-size: 12px;
+        opacity: 0.7;
+      }
+
+      /* Google Button */
+      .google-btn {
+        width: 100%;
+        padding: 12px;
+        border-radius: 25px;
+        border: none;
+        background: white;
+        color: black;
         font-weight: 600;
         cursor: pointer;
-        transition:
-          transform 0.1s ease,
-          filter 0.1s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
       }
 
-      .primary-btn:hover {
-        filter: brightness(1.2);
-        transform: translateY(-1px);
+      .google-btn img {
+        width: 20px;
+        height: 20px;
       }
 
-      .footer-text {
-        margin-top: 16px;
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.75);
+      .google-btn:hover {
+        background: #f1f1f1;
+      }
+
+      /* Footer */
+      .footer {
         text-align: center;
+        margin-top: 15px;
+        font-size: 13px;
       }
 
-      .footer-text a {
-        color: #a5c7ff;
-        font-weight: 700;
+      .footer a {
+        color: #9ecbff;
         text-decoration: none;
-      }
-
-      .footer-text a:hover {
-        text-decoration: underline;
       }
     </style>
   </head>
 
   <body>
-    <div class="auth-wrapper">
-      <div class="auth-card">
-        <h1 class="auth-title">Log In</h1>
+    <div class="card">
+      <h2>Log In</h2>
 
-        <form id="loginForm" action="/dashboard">
-          <div class="field">
-            <label for="username">Email</label>
-            <div class="input-row">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"
-                />
-              </svg>
-              <input
-                type="email"
-                id="username"
-                name="username"
-                required
-                placeholder="Enter your email"
-              />
-            </div>
-          </div>
+      <form id="loginForm">
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" id="username" placeholder="Enter your email" required>
+        </div>
 
-          <div class="field">
-            <label for="pwd1">Password</label>
-            <div class="input-row">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"
-                />
-              </svg>
-              <input
-                type="password"
-                id="pwd1"
-                name="password"
-                required
-                placeholder="Enter password"
-              />
-            </div>
-          </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="pwd1" placeholder="Enter password" required>
+        </div>
 
-          <button type="submit" class="primary-btn">Log In</button>
-        </form>
+        <button class="btn">Login</button>
+      </form>
 
-        <p
-          id="loginMessage"
-          class="footer-text"
-          style="min-height: 18px; margin-top: 10px"
-        ></p>
+      <div class="divider">OR</div>
 
-        <p class="footer-text">
-          New here?
-          <a href="/signup">Create an account</a>
-        </p>
+      <!-- Google Button with official icon -->
+        <a href='/auth/google' class="google-btn" style="text-decoration: none;">
+          <i class="fa-brands fa-google" style="color: #e50b0b;" aria-hidden="true" text-decoration="none"></i>
+          Continue with Google
+        </a>
+      
+
+      <div class="footer">
+        Don't have an account? <a href="/signup">Sign Up</a>
       </div>
     </div>
 
     <script>
-      document
-        .getElementById("loginForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          const messageEl = document.getElementById("loginMessage");
-          const username = document.getElementById("username").value;
-          const password = document.getElementById("pwd1").value;
+      document.getElementById("loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
 
-          // Sending data as a POST request
-          fetch("/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
+        fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: document.getElementById("username").value,
+            password: document.getElementById("pwd1").value
           })
-            .then((res) => res.json())
-            .then((data) => {
-              if (data.success) {
-                messageEl.textContent = "Login successful!";
-                messageEl.style.color = "#4ade80";
-
-                // Redirect to profile page
-                setTimeout(() => {
-                  window.location.href = "/dashboard";
-                }, 800);
-              } else {
-                messageEl.textContent =
-                  data.message || "Invalid email or password";
-                messageEl.style.color = "#f87171";
-              }
-            })
-            .catch((err) => {
-              messageEl.textContent = "Server error. Please try again.";
-              messageEl.style.color = "#f87171";
-            });
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.success) {
+            window.location = "/dashboard";
+          } else {
+            alert("Invalid login");
+          }
         });
+      });
     </script>
   </body>
 </html>
