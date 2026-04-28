@@ -109,9 +109,18 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const session = require("express-session");
+// const app = express();
+// const DATA_PATH = path.join(__dirname, "foundData.json");
+// const LOST_DATA_PATH = path.join(__dirname, "lostData.json");
+const mongoose = require("mongoose");
+// const multer = require("multer");
+const { LostItem, FoundItem } = require("./lost-found-data-model");
 const app = express();
-const DATA_PATH = path.join(__dirname, "foundData.json");
-const LOST_DATA_PATH = path.join(__dirname, "lostData.json");
+
+mongoose
+  .connect("mongodb://localhost:27017/lostAndFoundPortal")
+  .then(() => console.log("Connected to mongodb"))
+  .catch((err) => console.log(err));
 // const fs = require("fs");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true })); // This middleware parses form data
@@ -138,15 +147,20 @@ app.use(
 
 const USER_DATA_PATH = path.join(__dirname, "data.json");
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/uploads/"); // Make sure this folder exists!
-  },
-  filename: (req, file, cb) => {
-    // Renames file to: 171023456789.jpg (prevents naming conflicts)
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
+  destination: "./public/uploads/",
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
 });
 const upload = multer({ storage: storage });
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, "public/uploads/"); // Make sure this folder exists!
+//   },
+//   filename: (req, file, cb) => {
+//     // Renames file to: 171023456789.jpg (prevents naming conflicts)
+//     cb(null, Date.now() + path.extname(file.originalname));
+//   },
+// });
+// const upload = multer({ storage: storage });
 // Mock Data - In a real app, this comes from a database
 const listings = [
   {
@@ -372,33 +386,82 @@ app.get("/report-lost", (req, res) => {
   res.render("report-lost"); // This looks for views/report-lost.ejs
 });
 // Route to handle LOST form submission
-app.post("/submit-lost-report", upload.single("itemImage"), (req, res) => {
-  fs.readFile(LOST_DATA_PATH, "utf8", (err, data) => {
-    let listings = err ? [] : JSON.parse(data || "[]");
+// app.post("/submit-lost-report", upload.single("itemImage"), (req, res) => {
+//   fs.readFile(LOST_DATA_PATH, "utf8", (err, data) => {
+//     let listings = err ? [] : JSON.parse(data || "[]");
 
-    const newLostItem = {
-      id: Date.now(),
-      username: `${req.body.firstName} ${req.body.lastName}`,
-      timeAgo: "Just now",
-      status: "lost", // Mark as lost
-      title: req.body.category,
-      category: req.body.category,
-      location: req.body.location,
-      date: req.body.dateLost,
-      image: req.file
-        ? `/uploads/${req.file.filename}`
-        : "https://via.placeholder.com/400",
-      description: req.body.description,
-    };
+//     const newLostItem = {
+//       id: Date.now(),
+//       username: `${req.body.firstName} ${req.body.lastName}`,
+//       timeAgo: "Just now",
+//       status: "lost", // Mark as lost
+//       title: req.body.category,
+//       category: req.body.category,
+//       location: req.body.location,
+//       date: req.body.dateLost,
+//       image: req.file
+//         ? `/uploads/${req.file.filename}`
+//         : "https://via.placeholder.com/400",
+//       description: req.body.description,
+//     };
 
-    listings.push(newLostItem);
+//     listings.push(newLostItem);
 
-    fs.writeFile(LOST_DATA_PATH, JSON.stringify(listings, null, 2), (err) => {
-      if (err) return res.status(500).send("Error saving data.");
+//     fs.writeFile(LOST_DATA_PATH, JSON.stringify(listings, null, 2), (err) => {
+//       if (err) return res.status(500).send("Error saving data.");
+//       res.redirect("/dashboard");
+//     });
+//   });
+// });
+app.post(
+  "/submit-lost-report",
+  upload.single("itemImage"),
+  async (req, res) => {
+    try {
+      const lostData = new LostItem({
+        fullName: `${req.body.firstName} ${req.body.lastName}`,
+        phone: req.body.phone,
+        category: req.body.category,
+        description: req.body.description,
+        itemImage: req.file ? `/uploads/${req.file.filename}` : null,
+        dateLost: req.body.dateLost,
+        location: req.body.location,
+        locationDetails: req.body.locationDetails,
+      });
+
+      await lostData.save();
       res.redirect("/dashboard");
-    });
-  });
-});
+    } catch (err) {
+      res.status(500).send("Error saving lost report");
+    }
+  },
+);
+
+app.post(
+  "/submit-found-report",
+  upload.single("itemImage"),
+  async (req, res) => {
+    try {
+      const foundData = new FoundItem({
+        founderName: req.body.founderName,
+        email: req.body.email,
+        phone: req.body.phone,
+        relation: req.body.relation,
+        itemType: req.body.itemType,
+        brandColor: req.body.brandColor,
+        location: req.body.location,
+        foundDate: req.body.foundDate,
+        details: req.body.details,
+        itemImage: req.file ? `/uploads/${req.file.filename}` : null,
+      });
+
+      await foundData.save();
+      res.redirect("/dashboard");
+    } catch (err) {
+      res.status(500).send("Error saving found report");
+    }
+  },
+);
 
 // --- FIXED LOGIN LOGIC ---
 app.post("/login", (req, res) => {
