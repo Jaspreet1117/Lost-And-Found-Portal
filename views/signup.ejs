@@ -1,290 +1,310 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Sign Up</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sign Up - Lost and Found Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+      .signup-page-wrapper {
+        font-family: system-ui;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #dde5ed, #d0d6e6);
+        position: relative;
+        overflow: hidden;
+      }
 
-    body {
-      font-family: system-ui;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #dde5ed, #d0d6e6);
-      position: relative;
-      overflow: hidden;
-    }
+      .signup-page-wrapper::before,
+      .signup-page-wrapper::after {
+        content: "";
+        position: fixed;
+        border-radius: 50%;
+        z-index: -1;
+      }
+      .signup-page-wrapper::before {
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0.5);
+        animation: float 13s infinite ease-in-out;
+      }
+      .signup-page-wrapper::after {
+        bottom: -30%;
+        left: -5%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.3);
+        animation: float 25s infinite ease-in-out reverse;
+      }
 
-    /* Animated background elements */
-    body::before, body::after {
-      content: "";
-      position: fixed;
-      border-radius: 50%;
-      z-index: -1;
-    }
-    body::before {
-      top: -50%; right: -10%;
-      width: 500px; height: 500px;
-      background: rgba(255, 255, 255, 0.5);
-      animation: float 13s infinite ease-in-out;
-    }
-    body::after {
-      bottom: -30%; left: -5%;
-      width: 400px; height: 400px;
-      background: rgba(255, 255, 255, 0.3);
-      animation: float 25s infinite ease-in-out reverse;
-    }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(50px);
+        }
+      }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(50px); }
-    }
+      .signup-page-wrapper .auth-card {
+        width: 340px;
+        padding: 35px;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(20px);
+        color: white;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
 
-    .auth-card {
-      width: 340px;
-      padding: 35px;
-      border-radius: 20px;
-      background: rgba(0, 0, 0, 0.25);
-      backdrop-filter: blur(20px);
-      color: white;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    }
+      .signup-page-wrapper h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
 
-    h2 { text-align: center; margin-bottom: 20px; }
+      .signup-page-wrapper .field {
+        margin-bottom: 15px;
+      }
 
-    .field { margin-bottom: 15px; }
+      .signup-page-wrapper input:not([type="file"]) {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid white;
+        background: transparent;
+        color: white;
+        padding: 8px 0;
+        outline: none;
+        font-size: 14px;
+      }
 
-    input:not([type="file"]) {
-      width: 100%;
-      border: none;
-      border-bottom: 1px solid white;
-      background: transparent;
-      color: white;
-      padding: 8px 0;
-      outline: none;
-    }
+      .signup-page-wrapper input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
 
-    .primary-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 25px;
-      border: none;
-      background: #1e1b6b;
-      color: white;
-      margin-top: 15px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+      .signup-page-wrapper .primary-btn {
+        width: 100%;
+        padding: 12px;
+        border-radius: 25px;
+        border: none;
+        background: #1e1b6b;
+        color: white;
+        margin-top: 15px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: background 0.2s;
+      }
 
-    .primary-btn:hover { background: #2a26a5; }
+      .signup-page-wrapper .primary-btn:hover {
+        background: #2a26a5;
+      }
+      .signup-page-wrapper .primary-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
 
-    /* 🔥 UPDATED Profile Circle & Animation */
-    .profile-wrapper {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+      .signup-page-wrapper .profile-wrapper {
+        text-align: center;
+        margin-bottom: 20px;
+      }
 
-    .image-container {
-      position: relative;
-      width: 100px;
-      height: 100px;
-      margin: 0 auto;
-      border-radius: 50%;
-      border: 3px solid white;
-      overflow: hidden; /* This crops the sliding images */
-      cursor: pointer;
-      background: rgba(255, 255, 255, 0.1);
-    }
+      .signup-page-wrapper .image-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
+        border-radius: 50%;
+        border: 3px solid white;
+        overflow: hidden;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.1);
+      }
 
-    .image-container img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
-    }
+      .signup-page-wrapper .image-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition:
+          transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.3s;
+      }
 
-    /* Camera starts at center */
-    #preview {
-      opacity: 0.7;
-      transform: translateY(0);
-    }
-    /* Force full cover */
-#preview {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  border-radius: 50%;
-}
+      .signup-page-wrapper #preview {
+        opacity: 0.7;
+        transform: translateY(0);
+      }
 
-    /* Upload PNG starts below the circle */
-    .upload-icon {
-      transform: translateY(100%);
-      opacity: 0;
-      padding: 22px; /* Makes the arrow look properly sized in the circle */
-    }
+      .signup-page-wrapper .upload-icon {
+        transform: translateY(100%);
+        opacity: 0;
+        padding: 22px;
+      }
 
-    /* Hover State: Slide Camera UP, Slide Arrow UP */
-    .image-container:hover #preview {
-      transform: translateY(-100%);
-      opacity: 0;
-    }
+      .signup-page-wrapper .image-container:hover #preview {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
 
-    .image-container:hover .upload-icon {
-      transform: translateY(0);
-      opacity: 1;
-    }
+      .signup-page-wrapper .image-container:hover .upload-icon {
+        transform: translateY(0);
+        opacity: 1;
+      }
 
-    .footer-text {
-      margin-top: 16px;
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.75);
-      text-align: center;
-    }
+      .signup-page-wrapper .footer-text {
+        margin-top: 16px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.75);
+        text-align: center;
+      }
 
-    .footer-text a {
-      color: #a5c7ff;
-      font-weight: 700;
-      text-decoration: none;
-    }
-    /* Make image fully cover circle */
-    /* wrapper to control overflow properly */
-.preview-wrapper {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  overflow: hidden;
-  position: absolute;
-}
+      .signup-page-wrapper .footer-text a {
+        color: #a5c7ff;
+        font-weight: 700;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="signup-page-wrapper">
+      <div class="auth-card">
+        <h2>Sign Up</h2>
 
-/* actual image */
-#preview {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+        <form id="signupForm">
+          <div class="profile-wrapper">
+            <div class="image-container" id="imageContainer">
+              <img id="preview" src="/images/camera_icon.webp" alt="profile" />
+              <img
+                class="upload-icon"
+                src="/images/upload.png"
+                alt="upload"
+                style="background-size: cover; width: 100%; height: 100%"
+              />
+            </div>
+            <input
+              type="file"
+              id="profilePic"
+              accept="image/*"
+              style="display: none"
+            />
+          </div>
 
-/* fix upload icon */
-/* .upload-icon {
-  width: 35px;
-  height: 35px;
-  object-fit: contain;
-  left: 50%;
-  /* transform: translate(-50%, 100%); */
-/* } */ 
-  </style>
-</head>
+          <div class="field">
+            <input type="text" id="fullname" placeholder="Full Name" required />
+          </div>
 
-<body>
+          <div class="field">
+            <input type="email" id="username" placeholder="Email" required />
+          </div>
 
-<div class="auth-card">
-  <h2>Sign Up</h2>
+          <div class="field">
+            <input type="password" id="pwd1" placeholder="Password" required />
+          </div>
 
-  <form id="signupForm">
-    <div class="profile-wrapper">
-      <div class="image-container" id="imageContainer">
-        <div class="preview-wrapper"><img id="preview" src="./images/camera_icon.webp" alt="profile"></div>
-        <!-- <img id="preview" src="./images/camera_icon.webp" alt="profile"> -->
-        <img class="upload-icon" src="./images/upload2.jpeg" alt="upload" style="width: 100%; height: 100%; object-fit: cover;">
+          <div class="field">
+            <input
+              type="password"
+              id="pwd2"
+              placeholder="Confirm Password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="primary-btn" id="signupBtn">
+            Create Account
+          </button>
+        </form>
+
+        <p id="msg" class="footer-text"></p>
+
+        <p class="footer-text">
+          Already have an account? <a href="/login">Log In</a>
+        </p>
       </div>
-      <input type="file" id="profilePic" accept="image/*" style="display:none;">
     </div>
 
-    <div class="field">
-      <input type="text" id="fullname" placeholder="Full Name" required>
-    </div>
+    <script>
+      const fileInput = document.getElementById("profilePic");
+      const imageContainer = document.getElementById("imageContainer");
+      const preview = document.getElementById("preview");
 
-    <div class="field">
-      <input type="email" id="username" placeholder="Email" required>
-    </div>
+      imageContainer.addEventListener("click", () => fileInput.click());
 
-    <div class="field">
-      <input type="password" id="pwd1" placeholder="Password" required>
-    </div>
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (file) {
+          preview.src = URL.createObjectURL(file);
+          preview.style.opacity = "1";
+        }
+      });
 
-    <div class="field">
-      <input type="password" id="pwd2" placeholder="Confirm Password" required>
-    </div>
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-    <button type="submit" class="primary-btn">Create Account</button>
-  </form>
+          const btn = document.getElementById("signupBtn");
+          const msg = document.getElementById("msg");
+          const pwd1 = document.getElementById("pwd1").value;
+          const pwd2 = document.getElementById("pwd2").value;
 
-  <p id="msg" class="footer-text"></p>
+          if (pwd1 !== pwd2) {
+            msg.textContent = "Passwords do not match";
+            msg.style.color = "#f87171";
+            return;
+          }
 
-  <p class="footer-text">
-    Already have an account? <a href="/login">Log In</a>
-  </p>
-</div>
+          btn.disabled = true;
+          btn.textContent = "Creating…";
+          msg.textContent = "";
 
-<script>
-const fileInput = document.getElementById("profilePic");
-const imageContainer = document.getElementById("imageContainer");
-const preview = document.getElementById("preview");
+          const formData = new FormData();
+          formData.append(
+            "fullname",
+            document.getElementById("fullname").value,
+          );
+          formData.append(
+            "username",
+            document.getElementById("username").value,
+          );
+          formData.append("password", pwd1);
+          if (fileInput.files[0])
+            formData.append("profilePic", fileInput.files[0]);
 
-// Trigger file input when clicking the circle
-imageContainer.addEventListener("click", () => {
-  fileInput.click();
-});
+          try {
+            const res = await fetch("/signup", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await res.json();
 
-// Update preview when file is selected
-fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    preview.src = url;
-    preview.style.opacity = "1";
-  }
-});
-
-// Form Submission
-document.getElementById("signupForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const msg = document.getElementById("msg");
-
-  const formData = new FormData();
-  formData.append("fullname", document.getElementById("fullname").value);
-  formData.append("username", document.getElementById("username").value);
-  formData.append("password", document.getElementById("pwd1").value);
-  formData.append("confirmPassword", document.getElementById("pwd2").value);
-
-  if (fileInput.files[0]) {
-    formData.append("profilePic", fileInput.files[0]);
-  }
-
-  fetch("/signup", {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      msg.innerText = "Signup successful!";
-      msg.style.color = "lightgreen";
-      setTimeout(() => window.location = "/login", 1000);
-    } else {
-      msg.innerText = data.message || "Signup failed";
-      msg.style.color = "#f87171";
-    }
-  })
-  .catch(() => {
-    msg.innerText = "Server error";
-    msg.style.color = "#f87171";
-  });
-});
-</script>
-
-</body>
+            if (data.success) {
+              msg.textContent = "Account created! Redirecting…";
+              msg.style.color = "lightgreen";
+              setTimeout(() => (window.location.href = "/login"), 1200);
+            } else {
+              msg.textContent = data.message || "Signup failed";
+              msg.style.color = "#f87171";
+              btn.disabled = false;
+              btn.textContent = "Create Account";
+            }
+          } catch {
+            msg.textContent = "Server error. Please try again.";
+            msg.style.color = "#f87171";
+            btn.disabled = false;
+            btn.textContent = "Create Account";
+          }
+        });
+    </script>
+  </body>
 </html>

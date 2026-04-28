@@ -231,7 +231,7 @@
         <div class="profile-left">
           <img
             id="avatar"
-            src="<%= user.profileImage || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' %>"
+            src="<%= user.profilePic || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' %>"
             class="avatar"
           />
           <div class="profile-info">
@@ -332,14 +332,44 @@
         document.getElementById("editModal").style.display = "none";
       }
 
-      function saveProfile() {
-        const newName = document.getElementById("editName").value;
-        if (newName) {
-          document.getElementById("name").innerText = newName;
-          document.getElementById("welcomeName").innerText = newName;
+      async function saveProfile() {
+        const name = document.getElementById("editName").value;
+        const phone = document.getElementById("editPhone").value;
+        const campus = document.getElementById("editCampus").value;
+        const bio = document.getElementById("editBio").value;
+
+        try {
+          const res = await fetch("/profile/update", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name,
+              phone,
+              campus,
+              bio,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            document.getElementById("name").innerText = name;
+            document.getElementById("welcomeName").innerText = name;
+            document.getElementById("phone").innerText = phone;
+            document.getElementById("campus").innerText = campus;
+            document.getElementById("bio").innerText = bio;
+
+            alert("Profile updated successfully!");
+            closeEdit();
+          } else {
+            alert(data.message || "Update failed");
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Server error");
         }
-        // Integration point: fetch('/update-profile', ...)
-        closeEdit();
       }
 
       // Password Modal Logic

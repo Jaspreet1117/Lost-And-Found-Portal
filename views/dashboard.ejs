@@ -1,3 +1,5 @@
+<!-- 
+  -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -13,13 +15,12 @@
         <div class="nav-content">
             <div class="logo-area">
                 <i class="fa-solid fa-magnifying-glass-chart"></i>
-                
             </div>
             <div class="nav-links">
-                <a class="nav-link" href="/dashboard">HOME</a>
-                <a class="nav-link active-link" href="/report-lost">REPORT LOST</a>
-                <a class="nav-link"  href="/report-found">REPORT FOUND</a>
-                <a class="nav-link"  href="/profile">PROFILE</a>
+                <a class="nav-link active-link" href="/dashboard">HOME</a>
+                <a class="nav-link" href="/report-lost">REPORT LOST</a>
+                <a class="nav-link" href="/report-found">REPORT FOUND</a>
+                <a class="nav-link" href="/profile">PROFILE</a>
             </div>
         </div>
     </nav>
@@ -34,71 +35,86 @@
                     <button onclick="window.location.href='/report-found'" class="btn-gold">REPORT FOUND ITEM</button>
                 </div>
                 <div class="search-bar-container">
-                    <input type="text" placeholder="SEARCH ITEMS..." />
+                    <input type="text" id="searchInput" placeholder="SEARCH ITEMS..." oninput="filterPosts()" />
                     <button class="search-icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </header>
 
             <div class="content-header">
-                <h3 class="latest-listing">LOST LISTINGS</h3>
+                <h3 class="latest-listing" id="listingTitle">LOST LISTINGS</h3>
                 <div class="segmented-control">
-                    <input type="radio" name="status" id="lost-filter" checked />
+                    <input type="radio" name="status" id="lost-filter" checked onchange="filterPosts()" />
                     <label for="lost-filter">Lost</label>
-                    <input type="radio" name="status" id="found-filter" />
+                    <input type="radio" name="status" id="found-filter" onchange="filterPosts()" />
                     <label for="found-filter">Found</label>
                     <div class="selection-slider"></div>
                 </div>
             </div>
 
-            <div class="listings-grid">
-                <% listings.forEach(item => { %>
-                    <div class="post" data-description="<%= item.description %>">
-                        <div class="user-post">
-                            <div class="post-header-left">
-                                <img class="post-logo" src="https://ui-avatars.com/api/?name=<%= item.username %>&background=random" alt="User" />
-                                <div class="username">
-                                    <h4><%= item.username %></h4>
-                                    <p><%= item.timeAgo %></p>
+            <div class="listings-grid" id="listingsGrid">
+                <% if (posts && posts.length > 0) { %>
+                    <% posts.forEach(item => { %>
+                        <div class="post"
+                             data-status="<%= item.status %>"
+                             data-description="<%= (item.description || '').toLowerCase() %>"
+                             data-title="<%= (item.title || item.brandColor || '').toLowerCase() %>">
+                            <div class="user-post">
+                                <div class="post-header-left">
+                                    <img class="post-logo"
+                                         src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(item.reporterName || item.founderName || 'User') %>&background=random"
+                                         alt="User" />
+                                    <div class="username">
+                                        <h4><%= item.reporterName || item.founderName || 'Anonymous' %></h4>
+                                        <p><%= new Date(item.createdAt).toLocaleDateString() %></p>
+                                    </div>
+                                </div>
+                                <div class="found-item-action">
+                                    <button style="cursor: pointer;"
+                                        class="<%= item.status === 'lost' ? 'item-found-btn' : '' %>"
+                                        onclick="window.location.href='<%= item.status === 'lost' ? '/report-found' : '/claim-item/' + item._id %>'">
+                                        <%= item.status === 'lost' ? 'Item Found' : 'Claim Item' %>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="found-item-action">
-                               <button style="cursor: pointer;"
-                                    class="<%= item.status === 'lost' ? 'item-found-btn' : '' %>" 
-                                    onclick="window.location.href='<%= item.status === 'lost' ? '/report-found' : '/claim-item' %>'">
-                                    <%= item.status === 'lost' ? 'Item Found' : 'Claim Item' %>
-                                </button>
-                            </div>
-                        </div>
 
-                        <div class="item">
-                            <div class="item-image">
-                                <img src="<%= item.image %>" alt="<%= item.title %>" />
-                                <span class="status-badge <%= item.status %> <%= item.status === 'lost' ? 'pulse' : '' %>">
-                                    <%= item.status.toUpperCase() %>
-                                </span>
-                            </div>
-                            <div class="item-information">
-                                <div class="info-top">
-                                    <h2><%= item.title %></h2>
-                                    <span class="category-tag"><%= item.category %></span>
+                            <div class="item">
+                                <div class="item-image">
+                                    <% if (item.imagePath) { %>
+                                        <img src="/uploads/<%= item.imagePath %>" alt="<%= item.title || item.brandColor %>" />
+                                    <% } else { %>
+                                        <img src="/images/placeholder.png" alt="No image" />
+                                    <% } %>
+                                    <span class="status-badge <%= item.status %> <%= item.status === 'lost' ? 'pulse' : '' %>">
+                                        <%= item.status.toUpperCase() %>
+                                    </span>
                                 </div>
-                                <div class="info-middle">
-                                    <p class="info-row">
-                                        <span class="label">📍 Location</span>
-                                        <span class="value"><%= item.location %></span>
-                                    </p>
-                                    <p class="info-row">
-                                        <span class="label">📆 Date</span>
-                                        <span class="value"><%= item.date %></span>
-                                    </p>
+                                <div class="item-information">
+                                    <div class="info-top">
+                                        <h2><%= item.title || item.brandColor %></h2>
+                                        <span class="category-tag"><%= item.category || item.itemType %></span>
+                                    </div>
+                                    <div class="info-middle">
+                                        <p class="info-row">
+                                            <span class="label">📍 Location</span>
+                                            <span class="value"><%= item.location %></span>
+                                        </p>
+                                        <p class="info-row">
+                                            <span class="label">📆 Date</span>
+                                            <span class="value"><%= item.dateLost || item.foundDate || '' %></span>
+                                        </p>
+                                    </div>
+                                    <button class="view-details-btn" data-id="<%= item._id %>">
+                                        View Details <i class="fa-solid fa-arrow-right-long"></i>
+                                    </button>
                                 </div>
-                                <button class="view-details-btn">
-                                    View Details <i class="fa-solid fa-arrow-right-long"></i>
-                                </button>
                             </div>
                         </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="no-posts-message">
+                        <p>No posts yet. Be the first to report a lost or found item!</p>
                     </div>
-                <% }); %>
+                <% } %>
             </div>
         </div>
     </main>
@@ -107,5 +123,25 @@
 
     <script src="/js/modal.js"></script>
     <script src="/js/dashboard.js"></script>
+    <script>
+        function filterPosts() {
+            const isLost = document.getElementById('lost-filter').checked;
+            const activeStatus = isLost ? 'lost' : 'found';
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            document.getElementById('listingTitle').textContent =
+                isLost ? 'LOST LISTINGS' : 'FOUND LISTINGS';
+
+            document.querySelectorAll('#listingsGrid .post').forEach(post => {
+                const matchesStatus = post.dataset.status === activeStatus;
+                const matchesSearch = !searchTerm ||
+                    post.dataset.title.includes(searchTerm) ||
+                    (post.dataset.description || '').toLowerCase().includes(searchTerm);
+                post.style.display = (matchesStatus && matchesSearch) ? '' : 'none';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => filterPosts());
+    </script>
 </body>
 </html>

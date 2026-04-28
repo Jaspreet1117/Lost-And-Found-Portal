@@ -1,388 +1,450 @@
-//code for signup page to mongodb setup
-// ===== MONGODB CONNECTION (ADD THIS) =====
+require("dotenv").config();
+const express = require("express");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const path = require("path");
+const session = require("express-session");
+const passport = require("passport");
+const cookieParser = require("cookie-parser");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const multer = require("multer");
+const { LostItem, FoundItem } = require("./lost-found-data-model");
 
-// mongoose.connect("mongodb://127.0.0.1:27017/lostfoundDB", {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// })
-// .then(() => console.log("MongoDB Connected ✅"))
-// .catch(err => console.log(err));
-mongoose.connect("mongodb://127.0.0.1:27017/lostfoundDB")
+const app = express();
+
+// ─── MongoDB ────────────────────────────────────────────────────────────────
+mongoose
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB Connected ✅"))
-  .catch(err => console.log(err));
+  .catch((err) => console.error("MongoDB Error:", err));
 
-// ===== USER SCHEMA (ADD THIS) =====
+// ─── User Schema ─────────────────────────────────────────────────────────────
+// ================= USER SCHEMA =================
+// Replace your old userSchema with this
+
 const userSchema = new mongoose.Schema({
   name: String,
-  email: String,
+  email: {
+    type: String,
+    unique: true,
+  },
   password: String,
-  profilePic: String,
-  bio: String,
-  phone: String,
-  campus: String,
-  role: String,
-  stats: {
-    lost: Number,
-    found: Number,
-    returned: Number,
-  }
+
+  profilePic: {
+    type: String,
+    default: "/images/default.png",
+  },
+
+  googleId: String,
+  provider: String,
+
+  // extra profile fields
+  phone: {
+    type: String,
+    default: "",
+  },
+
+  bio: {
+    type: String,
+    default: "",
+  },
+
+  campus: {
+    type: String,
+    default: "",
+  },
 });
 
 const User = mongoose.model("User", userSchema);
 
-//.env file ki line
-require('dotenv').config();
-
-// // WELCOME PAGE (friend ka code)
-
-//Jaspreet code
-/////////////////////////
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
-const session = require("express-session");
-const passport = require('passport');
-require('./auth/google');
-const app = express();
-const DATA_PATH = path.join(__dirname, "foundData.json");
-const LOST_DATA_PATH = path.join(__dirname, "lostData.json");
-// const fs = require("fs");
-app.use(express.static(path.join(__dirname, "public")));
-app.use(express.urlencoded({ extended: true })); // This middleware parses form data
-const multer = require("multer");
-
-app.set("view engine", "ejs");
-app.use(express.static("public"));
-
-// CORS FIX
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST");
-  next();
+// ─── Multer (profile pic + item image uploads) ───────────────────────────────
+const storage = multer.diskStorage({
+  destination: (req, file, cb) =>
+    cb(null, path.join(__dirname, "public/uploads")),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + path.extname(file.originalname)),
 });
+const upload = multer({ storage });
+
+// ─── App Config ──────────────────────────────────────────────────────────────
+app.set("view engine", "ejs");
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
 
 app.use(
   session({
-    secret: "my_secret_key", // Choose a unique secret
+    secret: process.env.JWT_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set to true if using HTTPS
   }),
 );
 
-// Initialize Passport.js
 app.use(passport.initialize());
 app.use(passport.session());
 
-const USER_DATA_PATH = path.join(__dirname, "data.json");
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/uploads/"); // Make sure this folder exists!
-  },
-  filename: (req, file, cb) => {
-    // Renames file to: 171023456789.jpg (prevents naming conflicts)
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage: storage });
-// Mock Data - In a real app, this comes from a database
-const listings = [
-  {
-    // id: 1,
-    username: "jaaankiiiii",
-    timeAgo: "3h ago",
-    status: "lost",
-    title: "Classic Teddy",
-    category: "Accessories",
-    location: "Chandigarh",
-    date: "24 Mar 2026",
-    image:
-      "https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=400&auto=format&fit=crop",
-    description:
-      "A small toy has been reported lost recently.It is colorful and soft, making it easy to recognize. The toy was last seen in the nearby play area.It may hold special sentimental value for its owner.If anyone finds it, please return it to the lost and found section.",
-  },
-  {
-    // id: 2,
-    username: "alex_smith",
-    timeAgo: "5h ago",
-    status: "found",
-    title: "Luxury Watch",
-    category: "Electronics",
-    location: "Sector 17",
-    date: "01 Mar 2026",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=400&auto=format&fit=crop",
-    description:
-      "A **wristwatch** has been reported lost recently. It has a simple yet elegant design with a round dial and a comfortable strap. The watch may have great personal or sentimental value to its owner. It was last seen in a public place and might have been misplaced accidentally. Anyone who finds it is kindly requested to return it to the lost and found.",
-  },
-  {
-    username: "jaspreetKaur117",
-    timeAgo: "3h ago",
-    status: "lost",
-    title: "Gold Earrings",
-    category: "Accessories",
-    location: "Chandigarh",
-    date: "24 Mar 2026",
-    image: "/images/earrings.png", // Placeholder for earrings.png
-    description:
-      "A **pair of earrings** has been reported lost recently. They are small, elegant, and likely made of metal with a delicate design that makes them easy to recognize. The earrings may have significant sentimental or personal value to the owner. They were last seen in a public area and might have been misplaced accidentally. Anyone who finds them is kindly requested to return them to the lost and found or contact the owner.",
-  },
-  {
-    username: "jigyasa_24",
-    timeAgo: "3h ago",
-    status: "lost",
-    title: "Car Keys",
-    category: "Keys",
-    location: "Mohali",
-    date: "30 Mar 2026",
-    image: "/images/keys.png", // Placeholder for keys.png
-    description:
-      "A **set of keys** has been reported lost recently. The keys are attached to a small keychain, making them easier to identify. They were last seen in a public area and may have been dropped accidentally. These keys are important for the owner’s daily use. Anyone who finds them is kindly requested to return them to the lost and found or contact the owner. 🔑",
-  },
-];
+// ─── Google Strategy ─────────────────────────────────────────────────────────
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    },
+    async (accessToken, refreshToken, profile, cb) => {
+      try {
+        const email = profile.emails?.[0]?.value;
+        let user = await User.findOne({
+          $or: [{ email }, { googleId: profile.id }],
+        });
 
-// HOME ROUTE
-app.get("/", (req, res) => {
-  res.redirect("/Welcome");
+        if (!user) {
+          user = new User({
+            name: profile.displayName,
+            email,
+            googleId: profile.id,
+            provider: "google",
+            profilePic: profile.photos?.[0]?.value,
+          });
+          await user.save();
+        }
+        return cb(null, user);
+      } catch (err) {
+        return cb(err, null);
+      }
+    },
+  ),
+);
+
+passport.serializeUser((user, cb) => cb(null, user.id));
+passport.deserializeUser(async (id, cb) => {
+  const user = await User.findById(id);
+  cb(null, user);
 });
 
-// WELCOME PAGE
-app.get("/Welcome", (req, res) => {
-  res.render("Welcome", { title: "Welcome Page" });
-});
-
-// LOGIN PAGE (HTML)
-app.get("/login", (req, res) => {
-  // res.sendFile(path.join(__dirname, "views", "login.ejs"));
-  res.render("login");
-});
-
-// SIGNUP PAGE (HTML)
-app.get("/signup", (req, res) => {
-  // res.sendFile(path.join(__dirname, "views", "signup.ejs"));
-  res.render("signup", { title: "signup" });
-});
-
-// SIGNUP LOGIC
-// Add these at the top of app.js
-app.use(express.json());
-
-// app.post("/signup", upload.single("profilePic"), (req, res) => {
-  app.post("/signup", upload.single("profilePic"), (req, res) => {
-  const { fullname, username, password } = req.body;
-  const USER_DATA_PATH = path.join(__dirname, "data.json");
-
-  // 1. Read existing users
-  let users = [];
-  if (fs.existsSync(USER_DATA_PATH)) {
-    users = JSON.parse(fs.readFileSync(USER_DATA_PATH, "utf8") || "[]");
-  }
-
-  // 2. Check if user already exists
-  if (users.find((u) => u.email === username)) {
-    return res.json({ success: false, message: "User already exists!" });
-  }
-
-  // 3. Create new user object (Matching your profile.ejs keys)
-  const newUser = {
-    name: fullname, // Saved as 'name' for the profile
-    email: username, // Saved as 'email'
-    password: password,
-
-    profilePic: req.file ? `/uploads/${req.file.filename}` : "/images/default.png",
-
-    bio: "Helping the community find lost items!",
-    phone: "Not added yet",
-    campus: "Main Campus",
-    role: "Student",
-    stats: { lost: 0, found: 0, returned: 0 },
-  };
-
-  // 4. Save to file
-  users.push(newUser);
-  fs.writeFileSync(USER_DATA_PATH, JSON.stringify(users, null, 2));
-  ////////////////////////////(here added signup to mongodb code)
-  // ===== SAVE USER TO MONGODB (ADD THIS) =====
-const mongoUser = new User({
-  name: fullname,
-  email: username,
-  password: password,
-  profilePic: req.file 
-    ? `/uploads/${req.file.filename}` 
-    : "/images/default.png",
-  bio: "Helping the community find lost items!",
-  phone: "Not added yet",
-  campus: "Main Campus",
-  role: "Student",
-  stats: { lost: 0, found: 0, returned: 0 },
-});
-
-mongoUser.save()
-  .then(() => console.log("User saved to MongoDB ✅"))
-  .catch(err => console.log(err));
-  //////////////////////////////(ended here)
-
-  // 5. Tell the frontend it worked
-  res.json({ success: true });
-});
-
-
-
-// LOGIN LOGIC
-// Make sure you have this middleware at the top of your app.js to read JSON
-app.use(express.json());
-
-
-
-// 404 PAGE
-
-//dashboard and forms
-app.get("/dashboard", (req, res) => {
-  res.render("dashboard", { listings: listings });
-});
-
-// Route to show the form
-app.get("/report-found", (req, res) => {
-  res.render("report-found");
-});
-
-// Route to handle form submission
-app.post("/report-found", (req, res) => {
-  // 1. Read existing data
-  fs.readFile(DATA_PATH, "utf8", (err, data) => {
-    let listings = [];
-    if (!err && data) {
-      listings = JSON.parse(data);
-    }
-
-    // 2. Create new item object from form fields
-    const newItem = {
-      id: Date.now(),
-      username: req.body.founderName,
-      timeAgo: "Just now",
-      status: "found",
-      title: req.body.itemTitle,
-      category: req.body.itemType,
-      location: req.body.location,
-      date: req.body.date,
-      image: req.body.image || "https://via.placeholder.com/400",
-      description: req.body.description,
-    };
-
-    // 3. Add to array and save back to JSON file
-    listings.push(newItem);
-    fs.writeFile(DATA_PATH, JSON.stringify(listings, null, 2), (err) => {
-      if (err) return res.send("Error saving data.");
-      res.redirect("/dashboard"); // Redirect user to see their new post
-    });
-  });
-});
-app.get("/report-lost", (req, res) => {
-  res.render("report-lost"); // This looks for views/report-lost.ejs
-});
-// Route to handle LOST form submission
-app.post("/submit-lost-report", upload.single("itemImage"), (req, res) => {
-  fs.readFile(LOST_DATA_PATH, "utf8", (err, data) => {
-    let listings = err ? [] : JSON.parse(data || "[]");
-
-    const newLostItem = {
-      id: Date.now(),
-      username: `${req.body.firstName} ${req.body.lastName}`,
-      timeAgo: "Just now",
-      status: "lost", // Mark as lost
-      title: req.body.category,
-      category: req.body.category,
-      location: req.body.location,
-      date: req.body.dateLost,
-      image: req.file
-        ? `/uploads/${req.file.filename}`
-        : "https://via.placeholder.com/400",
-      description: req.body.description,
-    };
-
-    listings.push(newLostItem);
-
-    fs.writeFile(LOST_DATA_PATH, JSON.stringify(listings, null, 2), (err) => {
-      if (err) return res.status(500).send("Error saving data.");
-      res.redirect("/dashboard");
-    });
-  });
-});
-
-// --- FIXED LOGIN LOGIC ---
-/////////////////(login using mongodb(jigyasa))
-// ===== MONGODB LOGIN (ADD THIS ABOVE EXISTING LOGIN) =====
-app.post("/login", async (req, res, next) => {
-  const { username, password } = req.body;
-
+// ─── Auth Middleware ──────────────────────────────────────────────────────────
+const verifyToken = (req, res, next) => {
+  const token = req.cookies?.token;
+  if (!token) return res.redirect("/login");
   try {
-    const mongoUser = await User.findOne({ email: username });
-
-    if (mongoUser && mongoUser.password === password) {
-      req.session.user = mongoUser;
-      return res.json({ success: true });
-    }
-
-    // Agar MongoDB me nahi mila → next login (JSON wala) run hoga
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
-
   } catch (err) {
-    console.log(err);
-    next();
-  }
-});
-///////////////////(code ended (login to mongodb))
-app.post("/login", (req, res) => {
-  const { username, password } = req.body; // username is the email from your form
-
-  // Read users from your JSON file
-  const users = JSON.parse(fs.readFileSync(USER_DATA_PATH, "utf8") || "[]");
-
-  // Find the specific user
-  const foundUser = users.find(
-    (u) => u.email === username && u.password === password,
-  );
-
-  if (foundUser) {
-    // SAVE THE FOUND USER OBJECT INTO THE SESSION
-    req.session.user = foundUser;
-    res.json({ success: true });
-  } else {
-    res.json({ success: false, message: "Invalid email or password" });
-  }
-});
-
-// --- FIXED PROFILE ROUTE ---
-app.get("/profile", (req, res) => {
-  // Check if a user is logged in via session
-  if (req.session.user) {
-    // Render the profile using the session data (NOT hardcoded data)
-    res.render("profile", { user: req.session.user });
-  } else {
-    // If no session exists, send them back to login
+    res.clearCookie("token");
     res.redirect("/login");
   }
-});
+};
 
-// --- GOOGLE AUTH ROUTES ---
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
+// ─── Routes ──────────────────────────────────────────────────────────────────
+app.get("/", (req, res) => res.render("Welcome"));
+app.get("/login", (req, res) => res.render("login"));
+app.get("/signup", (req, res) => res.render("signup"));
 
-app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    // Successful authentication
-    req.session.user = req.user;
-    res.redirect('/dashboard');
+// POST /signup
+app.post("/signup", upload.single("profilePic"), async (req, res) => {
+  try {
+    const { fullname, username, password } = req.body;
+
+    if (!fullname || !username || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+
+    const existing = await User.findOne({ email: username });
+    if (existing) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Email already registered" });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    const profilePic = req.file
+      ? `/uploads/${req.file.filename}`
+      : "/images/default.png";
+
+    const user = new User({
+      name: fullname,
+      email: username,
+      password: hashed,
+      profilePic,
+      provider: "local",
+    });
+    await user.save();
+
+    return res.json({ success: true, message: "Account created!" });
+  } catch (err) {
+    console.error("Signup error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
+});
+
+// POST /login
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ email: username });
+    if (!user || !user.password) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid email or password" });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid email or password" });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("Login error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ─── Google OAuth ─────────────────────────────────────────────────────────────
+app.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 
-app.use((req, res) => {
-  res.status(404).render("pageNotFound", { title: "Page Not Found" });
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login",
+    session: false,
+  }),
+  (req, res) => {
+    const token = jwt.sign(
+      { id: req.user._id, email: req.user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.redirect("/dashboard");
+  },
+);
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+// Fetches all LostItems and FoundItems from DB, merges them and passes as `posts`
+app.get("/dashboard", verifyToken, async (req, res) => {
+  try {
+    const [lostItems, foundItems] = await Promise.all([
+      LostItem.find().sort({ createdAt: -1 }).lean(),
+      FoundItem.find().sort({ createdAt: -1 }).lean(),
+    ]);
+
+    // Tag each item with its status so the dashboard template can filter
+    const lost = lostItems.map((item) => ({ ...item, status: "lost" }));
+    const found = foundItems.map((item) => ({ ...item, status: "found" }));
+
+    // Merge and sort newest first
+    const posts = [...lost, ...found].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    );
+
+    res.render("dashboard", { posts });
+  } catch (err) {
+    console.error("Dashboard error:", err);
+    res.render("dashboard", { posts: [] });
+  }
 });
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+// ─── Report Lost ──────────────────────────────────────────────────────────────
+app.get("/report-lost", verifyToken, (req, res) => res.render("report-lost"));
+
+app.post(
+  "/report-lost",
+  verifyToken,
+  upload.single("itemImage"),
+  async (req, res) => {
+    try {
+      const {
+        firstName,
+        lastName,
+        phone,
+        category,
+        description,
+        dateLost,
+        location,
+        locationDetails,
+      } = req.body;
+
+      if (!firstName || !lastName || !phone || !location || !dateLost) {
+        return res.render("report-lost", {
+          error: "Please fill all required fields",
+        });
+      }
+
+      const imagePath = req.file ? req.file.filename : null;
+
+      const lostItem = new LostItem({
+        reporterName: firstName + " " + lastName,
+        title: category,
+        category,
+        location,
+        dateLost,
+        description,
+        contactPhone: phone,
+        locationDetails,
+        imagePath,
+        postedBy: req.user.id,
+      });
+
+      await lostItem.save();
+
+      res.redirect("/dashboard");
+    } catch (err) {
+      console.error(err);
+      res.render("report-lost", {
+        error: "Server error",
+      });
+    }
+  },
+);
+
+// ─── Report Found ─────────────────────────────────────────────────────────────
+app.get("/report-found", verifyToken, (req, res) => res.render("report-found"));
+
+app.post(
+  "/report-found",
+  verifyToken,
+  upload.single("itemImage"),
+  async (req, res) => {
+    try {
+      const {
+        founderName,
+        brandColor,
+        itemType,
+        location,
+        foundDate,
+        description,
+        contactEmail,
+        contactPhone,
+      } = req.body;
+
+      if (!founderName || !brandColor || !location || !foundDate) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Please fill all required fields" });
+      }
+
+      const imagePath = req.file ? req.file.filename : null;
+
+      const foundItem = new FoundItem({
+        founderName,
+        brandColor,
+        itemType,
+        location,
+        foundDate,
+        description,
+        contactEmail,
+        contactPhone,
+        imagePath,
+        postedBy: req.user.id,
+      });
+
+      await foundItem.save();
+      return res.json({ success: true, message: "Found item reported!" });
+    } catch (err) {
+      console.error("Report found error:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+  },
+);
+// ================= PROFILE ROUTE =================
+// Replace your current /profile route with this
+
+app.get("/profile", verifyToken, async (req, res) => {
+  try {
+    // IMPORTANT:
+    // use req.user.id NOT req.userId
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    res.render("profile", { user });
+  } catch (error) {
+    console.error("Profile Error:", error);
+    res.status(500).send("Error loading profile");
+  }
 });
+
+// Update profile route
+// ================= PROFILE UPDATE ROUTE =================
+// Replace your current update route with this
+
+app.post(
+  "/profile/update",
+  verifyToken,
+  upload.single("profilePic"),
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id);
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      // update values
+      if (req.body.name) user.name = req.body.name;
+      if (req.body.phone) user.phone = req.body.phone;
+      if (req.body.bio) user.bio = req.body.bio;
+      if (req.body.campus) user.campus = req.body.campus;
+
+      if (req.file) {
+        user.profilePic = `/uploads/${req.file.filename}`;
+      }
+
+      await user.save();
+
+      res.json({
+        success: true,
+        message: "Profile updated successfully",
+      });
+    } catch (error) {
+      console.error("Update Profile Error:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Server Error",
+      });
+    }
+  },
+);
+// ─── Logout ───────────────────────────────────────────────────────────────────
+app.get("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.redirect("/login");
+});
+
+app.listen(process.env.PORT || 3000, () =>
+  console.log(`Server: http://localhost:${process.env.PORT || 3000}`),
+);
