@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Item Details - Retrieve</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to bottom, #f8faf7, #f0f4f2);
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .card {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+  </style>
+</head>
+<body class="min-h-screen py-12">
+
+  <div class="max-w-4xl mx-auto px-6">
+    
+    <!-- Back Button + Logo -->
+    <div class="flex items-center justify-between mb-10">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl font-bold text-teal-600">Retrieve</span>
+      </div>
+      <a href="#" class="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition">
+        <i class="fas fa-arrow-left"></i>
+        <span class="font-medium">Back</span>
+      </a>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card bg-white rounded-3xl overflow-hidden">
+      <div class="grid md:grid-cols-2 gap-8 p-8 md:p-12">
+
+        <!-- Left: Image -->
+        <div>
+          <img src="https://images.unsplash.com/photo-1587486936551-4f0d8e2d6e0e" 
+               alt="Silver Keys with Teal Keychain"
+               class="w-full h-full object-cover rounded-2xl shadow-md">
+        </div>
+
+        <!-- Right: Details -->
+        <div class="space-y-8">
+
+          <div>
+            <h1 class="text-3xl font-semibold text-gray-900">Silver Keys with Teal Keychain</h1>
+            <span class="inline-block mt-3 px-5 py-1.5 bg-orange-100 text-orange-700 text-sm font-medium rounded-full">
+              Lost 2 hours ago
+            </span>
+          </div>
+
+          <!-- Owner Info -->
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-xl">
+              CS
+            </div>
+            <div>
+              <p class="font-semibold text-gray-900">Chitkara Student</p>
+              <p class="text-sm text-gray-500">Verified Email • Trusted Member</p>
+            </div>
+          </div>
+
+          <!-- Reward & Location -->
+          <div class="grid grid-cols-1 gap-4">
+            <div class="bg-pink-50 border border-pink-100 p-5 rounded-2xl">
+              <p class="text-pink-700 font-medium">No reward - just need them back</p>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl flex items-center gap-3">
+              <i class="fas fa-map-marker-alt text-emerald-600"></i>
+              <div>
+                <p class="font-medium text-gray-700">Near Academic Block C</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quote -->
+          <div class="italic text-gray-600 text-lg leading-relaxed border-l-4 border-teal-200 pl-5">
+            "Losing keys = cardio you didn’t ask for. Help a friend out ❤️"
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-4 pt-6">
+            <button class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-4 px-8 rounded-2xl flex items-center justify-center gap-3 transition">
+              <i class="fas fa-comment-dots"></i>
+              Message Owner
+            </button>
+            <button class="flex-1 border border-gray-300 hover:border-gray-400 font-medium py-4 px-8 rounded-2xl flex items-center justify-center gap-3 transition">
+              <i class="fas fa-bookmark"></i>
+              Save for Later
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Map Section -->
+      <div class="border-t bg-gray-50 p-8">
+        <p class="text-sm text-gray-500 mb-3 font-medium">Last Seen Location</p>
+        <div class="bg-white rounded-2xl overflow-hidden border h-80 flex items-center justify-center">
+          <div class="text-center">
+            <div class="text-6xl mb-4">📍</div>
+            <p class="font-medium text-gray-700">Near Academic Block C</p>
+            <p class="text-sm text-gray-500 mt-1">Map will be integrated here</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

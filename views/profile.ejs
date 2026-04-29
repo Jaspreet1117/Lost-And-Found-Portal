@@ -1,374 +1,858 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= user.name %> - Profile</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | Lost & Found</title>
+  <!-- Google Fonts: Poppins with normal weight -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Poppins", sans-serif;
-      }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f7fb;
+      color: #1e293b;
+      transition: background 0.2s ease;
+      font-weight: 400;
+    }
 
-      body {
-        background: linear-gradient(135deg, #f3ece3, #e8dccb);
-        display: flex;
-        min-height: 100vh;
-        color: #333;
-      }
+    /* DARK MODE - softer */
+    body.dark-mode {
+      background: #111827;
+      color: #e2e8f0;
+    }
+    body.dark-mode .navbar,
+    body.dark-mode .profile-card,
+    body.dark-mode .stat-card,
+    body.dark-mode .card,
+    body.dark-mode .modal-content {
+      background: #1e293b;
+      color: #e2e8f0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    body.dark-mode .edit-btn {
+      background: #334155;
+      color: #f1f5f9;
+    }
+    body.dark-mode .stat-icon.red { background: #3b2a2a; color: #f87171; }
+    body.dark-mode .stat-icon.green { background: #1a3a2a; color: #86efac; }
+    body.dark-mode .stat-icon.yellow { background: #3e3a1f; color: #fde047; }
+    body.dark-mode .btn-primary { background: #3b82f6; }
+    body.dark-mode .btn-danger { background: #4c2a2a; color: #fca5a5; }
+    body.dark-mode .setting-item, 
+    body.dark-mode .info-row,
+    body.dark-mode .activity-item {
+      border-bottom-color: #334155;
+    }
+    body.dark-mode input, body.dark-mode textarea {
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+    }
 
-      /* MAIN AREA */
-      .main {
-        flex: 1;
-        padding: 20px 40px;
-        background: #faf6f0;
-        margin: 20px 20px 20px 20px;
-        border-radius: 18px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-      }
+    /* MAIN CONTAINER - captures 60-65% width */
+    .main-container {
+      max-width: 860px;
+      width: 65%;
+      margin: 0 auto;
+      padding: 24px 0;
+    }
 
-      /* COVER SECTION */
-      .cover {
-        height: 250px;
-        border-radius: 40px;
-        position: relative;
-        overflow: hidden;
-      }
+    /* NAVBAR - subtle */
+    /* .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 32px;
+      background: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      font-weight: 500;
+    }
+    .logo {
+      font-size: 1.2rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-right {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .nav-right a {
+      text-decoration: none;
+      color: #475569;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: 0.2s;
+    }
+    .nav-right a:hover { color: #2563eb; }
+    .logout-link { color: #ef4444 !important; }
+    .logout-link:hover { color: #dc2626 !important; } */
 
-      .cover img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
+    /* HEADER BANNER - reduced height */
+    .profile-header-bg {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      height: 120px;
+      border-radius: 16px;
+      position: relative;
+      z-index: 1;
+    }
 
-      .cover::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          135deg,
-          rgba(37, 99, 235, 0.4),
-          rgba(30, 58, 138, 0.5)
-        );
-      }
+    /* PROFILE CARD - smaller border radius, compact */
+    .profile-card {
+      background: white;
+      margin-top: -48px;
+      border-radius: 16px;
+      padding: 20px 28px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+      position: relative;
+      z-index: 10;
+    }
+    .profile-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .avatar-wrapper {
+      position: relative;
+      cursor: pointer;
+    }
+    .avatar {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(145deg, #3b82f6, #6d28d9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 500;
+      color: white;
+      border: 3px solid white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      object-fit: cover;
+    }
+    .camera-overlay {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: white;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      cursor: pointer;
+      border: 2px solid white;
+    }
+    .camera-overlay svg {
+      width: 14px;
+      height: 14px;
+      color: #2563eb;
+    }
+    .profile-info h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+    .member-since {
+      font-size: 0.7rem;
+      color: #5b6e8c;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .profile-email {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: #3b82f6;
+    }
+    .edit-btn {
+      background: #eef2ff;
+      border: none;
+      padding: 7px 18px;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
 
-      .cover-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        color: white;
-        z-index: 2;
-        width: 100%;
-      }
+    /* STATS ROW - compact cards */
+    .stats-row {
+      display: flex;
+      gap: 20px;
+      margin: 28px 0;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      flex: 1;
+      background: white;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+    .red { background: #fee2e2; color: #b91c1c; }
+    .green { background: #dcfce7; color: #15803d; }
+    .yellow { background: #fef9c3; color: #a16207; }
+    .stat-text h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .stat-text p {
+      font-size: 0.7rem;
+      color: #5b6e8c;
+      font-weight: 400;
+    }
 
-      /* PROFILE OVERLAP BAR */
-      .profile-bar {
-        background: #fffaf5;
-        margin: -40px 20px 0 20px;
-        border-radius: 15px;
-        padding: 20px 30px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: relative;
-        z-index: 3;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      }
+    /* TWO COLUMN GRID - subtler */
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 1fr 0.9fr;
+      gap: 20px;
+      margin: 20px 0 28px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .card h3 {
+      font-size: 1rem;
+      margin-bottom: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card h3 svg {
+      width: 16px;
+      height: 16px;
+    }
+    .info-row {
+      margin: 12px 0;
+      border-bottom: 1px solid #eef2f6;
+      padding-bottom: 10px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #edf2f7;
+      font-size: 0.8rem;
+    }
+    .toggle-switch {
+      width: 38px;
+      height: 20px;
+      background: #cbd5e1;
+      border-radius: 30px;
+      position: relative;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .toggle-switch.active {
+      background: #3b82f6;
+    }
+    .toggle-switch span {
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      transition: 0.2s;
+    }
+    .toggle-switch.active span {
+      left: 19px;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 9px;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      width: 100%;
+      margin-top: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: none;
+      padding: 9px;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      width: 100%;
+      margin-top: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    /* Activity list */
+    .activity-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eef2f6;
+    }
+    .activity-info strong {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .activity-info small {
+      font-size: 0.65rem;
+      color: #6c7a91;
+      display: flex;
+      gap: 8px;
+      margin-top: 3px;
+    }
+    .badge {
+      font-size: 0.6rem;
+      padding: 3px 10px;
+      border-radius: 30px;
+      font-weight: 500;
+    }
+    .badge-lost { background: #fee2e2; color: #b91c1c; }
+    .badge-found { background: #dcfce7; color: #15803d; }
+    .section-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin: 12px 0 6px;
+    }
 
-      .profile-left {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-      }
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      width: 90%;
+      max-width: 420px;
+      border-radius: 20px;
+      padding: 24px;
+    }
+    .modal-content h3 {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    .modal-content input, .modal-content textarea {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid #ddd;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.8rem;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .modal-buttons button {
+      flex: 1;
+      padding: 8px;
+      border-radius: 30px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      cursor: pointer;
+      border: none;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.65rem;
+      color: #94a3b8;
+    }
+    @media (max-width: 900px) {
+      .main-container { width: 85%; }
+    }
+    @media (max-width: 700px) {
+      .main-container { width: 92%; }
+      .two-col-grid { grid-template-columns: 1fr; }
+    }
+    /* Navbar */
+.navbar {
+  background: white;
+  padding: 10px 40px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
 
-      .avatar {
-        width: 110px;
-        height: 110px;
-        border-radius: 50%;
-        border: 5px solid white;
-        object-fit: cover;
-        background: #eee;
-      }
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-      .profile-info h3 {
-        font-size: 22px;
-        color: #05122c;
-      }
-      .profile-info p {
-        font-size: 14px;
-        color: #666;
-        margin-bottom: 10px;
-      }
+.logo-area {
+  font-weight: 800;
+  color: var(--primary-blue);
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-      .profile-buttons button {
-        background: #e8dccb;
-        border: none;
-        padding: 8px 18px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: background 0.2s;
-        margin-right: 5px;
-      }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Adds space between links */
+}
 
-      .profile-buttons .pass-btn {
-        background: #2563eb;
-        color: white;
-      }
+.nav-links a {
+  text-decoration: none;
+  color: #444;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease; /* The magic for smooth transition */
+  position: relative;
+}
 
-      /* STATS SECTION */
-      .stats {
-        display: flex;
-        gap: 40px;
-      }
-      .stats div {
-        text-align: center;
-        line-height: 1.4;
-      }
-      .stats b {
-        font-size: 20px;
-        color: #1e3a8a;
-      }
+/* Hover Effect */
+.nav-links a:hover {
+  background-color: rgba(31, 187, 166, 0.1); /* Subtle teal tint */
+  color: var(--teal);
+  transform: translateY(-2px); /* Slight lift effect */
+}
 
-      /* INFORMATION CARD */
-      .card {
-        background: #fffaf5;
-        padding: 30px;
-        border-radius: 12px;
-        margin-top: 25px;
-      }
+/* Active Link Polish */
+.active-link {
+  background: var(--teal);
+  color: white !important;
+  box-shadow: 0 4px 10px rgba(31, 187, 166, 0.3);
+}
 
-      .card h3 {
-        margin-bottom: 15px;
-        color: #0f234d;
-        border-bottom: 2px solid #e8dccb;
-        display: inline-block;
-      }
+.logo-area {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
 
-      /* MODALS */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-      }
+.logo-area:hover {
+  transform: scale(1.05);
+}
 
-      .modal-content {
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        width: 400px;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-      }
+.logo-area:hover i {
+  color: var(--teal);
+  animation: rotateSearch 0.5s ease-in-out;
+}
 
-      .modal-content input,
-      .modal-content textarea {
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        width: 100%;
-      }
+@keyframes rotateSearch {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(15deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+/* Update your existing button styles */
+.action-buttons button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  color: white;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
+  position: relative;
+  overflow: hidden;
+}
 
-      .modal-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 10px;
-      }
+/* Specific button glows */
+.btn-teal:hover {
+  background: #18a38f;
+  box-shadow: 0 0 20px rgba(31, 187, 166, 0.5);
+  transform: translateY(-3px) scale(1.05);
+}
 
-      .modal-buttons button {
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        border: none;
-      }
+.btn-gold:hover {
+  background: #e09d2e;
+  box-shadow: 0 0 20px rgba(243, 174, 61, 0.5);
+  transform: translateY(-3px) scale(1.05);
+}
 
-      .save-btn {
-        background: #1e3a8a;
-        color: white;
-      }
-      .cancel-btn {
-        background: #eee;
-        color: #333;
-      }
-    </style>
-  </head>
+  </style>
+</head>
+<body>
 
-  <body>
-    <div class="main">
-      <div class="cover">
-        <img
-          src="<%= user.coverImage || 'https://i.pinimg.com/1200x/41/74/b9/4174b96d7a37d5982fe53cba5343beab.jpg' %>"
-          alt="Cover"
-        />
-        <div class="cover-text">
-          <h2>Welcome, <span id="welcomeName"><%= user.name %></span></h2>
-          <p>Helping you reunite with your belongings.</p>
-        </div>
-      </div>
-
-      <div class="profile-bar">
-        <div class="profile-left">
-          <img
-            id="avatar"
-            src="<%= user.profileImage || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' %>"
-            class="avatar"
-          />
-          <div class="profile-info">
-            <h3 id="name"><%= user.name %></h3>
-            <p><%= user.role || 'Community Member' %></p>
-            <div class="profile-buttons">
-              <button onclick="openEdit()">Edit Profile</button>
-              <button class="pass-btn" onclick="openPasswordBox()">
-                Change Password
-              </button>
+<nav class="navbar">
+        <div class="nav-content">
+            <div class="logo-area">
+                <i class="fa-solid fa-magnifying-glass-chart"></i>
             </div>
+            <div class="nav-links">
+                <a class="nav-link active-link" href="/dashboard">HOME</a>
+                <a class="nav-link" href="/report-lost">REPORT LOST</a>
+                <a class="nav-link" href="/report-found">REPORT FOUND</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+<div class="main-container">
+  <div class="profile-header-bg"></div>
+
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="profile-left">
+      <div class="avatar-wrapper" id="avatarUploadTrigger">
+        <div class="avatar" id="avatarImg">
+          <%= (typeof user !== 'undefined' && user.name) ? user.name.charAt(0).toUpperCase() : 'J' %>
+        </div>
+        <div class="camera-overlay" id="cameraIconBtn">
+          <i data-lucide="camera"></i>
+        </div>
+      </div>
+      <div class="profile-info">
+        <h2 id="displayName"><%= user ? user.name : 'JASPREET KAUR' %></h2>
+        <div class="member-since"><i data-lucide="calendar"></i> Member since April 2026</div>
+        <div class="profile-email"><i data-lucide="mail"></i> <%= user ? user.email : 'jaspreet@chitkara.edu.in' %></div>
+      </div>
+    </div>
+    <button class="edit-btn" id="openEditProfileBtn"><i data-lucide="pencil"></i> Edit Profile</button>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon red"><i data-lucide="search"></i></div>
+      <div class="stat-text">
+        <h3 id="lostCountStat"><%= typeof lostItems !== 'undefined' ? lostItems.length : 0 %></h3>
+        <p>Lost Items</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><i data-lucide="map-pin"></i></div>
+      <div class="stat-text">
+        <h3 id="foundCountStat"><%= typeof foundItems !== 'undefined' ? foundItems.length : 0 %></h3>
+        <p>Found Items</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon yellow"><i data-lucide="handshake"></i></div>
+      <div class="stat-text">
+        <h3 id="claimsStat">0</h3>
+        <p>Claims</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col-grid">
+    <!-- Left: Bio & Contact -->
+    <div class="card">
+      <h3><i data-lucide="user"></i> Bio & Contact</h3>
+      <div class="info-row"><i data-lucide="message-circle"></i> <span id="bioText"><%= user && user.bio ? user.bio : "No bio added" %></span></div>
+      <div class="info-row"><i data-lucide="phone"></i> <strong>Phone:</strong> <span id="phoneText"><%= user && user.phone ? user.phone : "Not provided" %></span></div>
+      <div class="info-row"><i data-lucide="building"></i> <strong>Campus:</strong> <span id="campusText"><%= user && user.campus ? user.campus : "N/A" %></span></div>
+    </div>
+
+    <!-- Right: Settings -->
+    <div class="card">
+      <h3><i data-lucide="settings"></i> Account Settings</h3>
+      <div class="setting-item">
+        <span><i data-lucide="moon"></i> Dark Mode</span>
+        <div class="toggle-switch" id="darkModeToggle"><span></span></div>
+      </div>
+      <div class="setting-item">
+        <span><i data-lucide="bell"></i> Notifications</span>
+        <div class="toggle-switch active" id="notifToggle"><span></span></div>
+      </div>
+      <button class="btn-primary" id="changePasswordBtn" style="height:40px;"> Change Password</button>
+      <button class="btn-danger" id="deleteAccountBtn"><i data-lucide="trash-2"></i> Delete Account</button>
+    </div>
+  </div>
+
+  <!-- My Posts Section (Lost & Found listings) -->
+  <div class="card" style="margin-top: 4px;">
+    <h3><i data-lucide="layers"></i> My Posts</h3>
+    <div style="display: flex; gap: 20px; margin-bottom: 12px; font-size:0.8rem;">
+      <span><strong>Lost (<span id="lostCountLabel"><%= typeof lostItems !== 'undefined' ? lostItems.length : 0 %></span>)</strong></span>
+      <span><strong>Found (<span id="foundCountLabel"><%= typeof foundItems !== 'undefined' ? foundItems.length : 0 %></span>)</strong></span>
+    </div>
+
+    <!-- Lost Items list -->
+    <div id="lostItemsContainer">
+      <% if (typeof lostItems !== 'undefined' && lostItems.length) { 
+        lostItems.forEach(item => { %>
+          <div class="activity-item">
+            <div class="activity-info">
+              <strong><%= item.title || item.category || "Item" %></strong>
+              <small><i data-lucide="map-pin" style="width:10px;"></i> <%= item.location || 'Unknown' %> • 📅 <%= item.dateLost ? new Date(item.dateLost).toLocaleDateString() : '' %></small>
+            </div>
+            <span class="badge badge-lost">Lost</span>
           </div>
-        </div>
+      <% }); } else { %>
+        <p style="padding: 8px 0; font-size:0.75rem; color:#6c7a91;"><i data-lucide="inbox"></i> No lost items reported</p>
+      <% } %>
+    </div>
 
-        <div class="stats">
-          <div><b><%= user.stats ? user.stats.lost : 0 %></b><br />Lost</div>
-          <div><b><%= user.stats ? user.stats.found : 0 %></b><br />Found</div>
-          <div>
-            <b><%= user.stats ? user.stats.returned : 0 %></b><br />Returned
+    <!-- Found Items list -->
+    <div style="margin-top: 8px;">
+      <% if (typeof foundItems !== 'undefined' && foundItems.length) { 
+        foundItems.forEach(item => { %>
+          <div class="activity-item">
+            <div class="activity-info">
+              <strong><%= item.itemType || item.brandColor || "Item" %></strong>
+              <small><i data-lucide="map-pin"></i> <%= item.location || 'Unknown' %> • 📅 <%= item.foundDate ? new Date(item.foundDate).toLocaleDateString() : '' %></small>
+            </div>
+            <span class="badge badge-found">Found</span>
           </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Bio & Contact</h3>
-        <p id="bio"><i><%= user.bio || 'No bio provided yet.' %></i></p>
-        <br />
-        <p><b>Email:</b> <span id="email"><%= user.email %></span></p>
-        <p>
-          <b>Phone:</b>
-          <span id="phone"><%= user.phone || 'Not provided' %></span>
-        </p>
-        <p>
-          <b>Campus:</b>
-          <span id="campus"><%= user.campus || 'Not assigned' %></span>
-        </p>
-      </div>
+      <% }); } else { %>
+        <p style="padding: 8px 0; font-size:0.75rem; color:#6c7a91;"><i data-lucide="inbox"></i> No found items reported</p>
+      <% } %>
     </div>
+  </div>
+  <footer>Secure profile • Manage your items</footer>
+</div>
 
-    <div class="modal" id="editModal">
-      <div class="modal-content">
-        <h3>Update Profile</h3>
-        <input
-          type="text"
-          id="editName"
-          placeholder="Name"
-          value="<%= user.name %>"
-        />
-        <input
-          type="text"
-          id="editPhone"
-          placeholder="Phone"
-          value="<%= user.phone %>"
-        />
-        <input
-          type="text"
-          id="editCampus"
-          placeholder="Campus"
-          value="<%= user.campus %>"
-        />
-        <textarea id="editBio" placeholder="Tell us about yourself...">
-<%= user.bio %></textarea
-        >
-        <div class="modal-buttons">
-          <button class="cancel-btn" onclick="closeEdit()">Cancel</button>
-          <button class="save-btn" onclick="saveProfile()">Save Changes</button>
-        </div>
-      </div>
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <h3><i data-lucide="user-pen"></i> Edit Profile</h3>
+    <input type="text" id="editName" placeholder="Full Name">
+    <input type="tel" id="editPhone" placeholder="Phone number">
+    <input type="text" id="editCampus" placeholder="Campus">
+    <textarea id="editBio" rows="2" placeholder="Write a short bio..."></textarea>
+    <div class="modal-buttons">
+      <button id="saveProfileBtn" style="background:#2563eb; color:white;">Save</button>
+      <button id="closeModalBtn" style="background:#e2e8f0;">Cancel</button>
     </div>
+  </div>
+</div>
 
-    <div class="modal" id="passwordModal">
-      <div class="modal-content">
-        <h3>Change Password</h3>
-        <input type="password" id="oldPass" placeholder="Current Password" />
-        <input type="password" id="newPass" placeholder="New Password" />
-        <input
-          type="password"
-          id="confirmPass"
-          placeholder="Confirm New Password"
-        />
-        <div class="modal-buttons">
-          <button class="cancel-btn" onclick="closePasswordBox()">
-            Cancel
-          </button>
-          <button class="save-btn" onclick="savePassword()">
-            Update Password
-          </button>
-        </div>
-      </div>
+<!-- Password Modal -->
+<div id="passwordModal" class="modal">
+  <div class="modal-content">
+    <h3> Change Password</h3>
+    <input type="password" id="currentPassword" placeholder="Current password">
+    <input type="password" id="newPassword" placeholder="New password">
+    <input type="password" id="confirmPassword" placeholder="Confirm password">
+    <div class="modal-buttons">
+      <button id="submitPasswordBtn" style="background:#2563eb; color:white;">Update</button>
+      <button id="closePwdModalBtn" style="background:#e2e8f0;">Cancel</button>
     </div>
+    <p id="passwordMsg" style="font-size:11px; margin-top:6px; color:#e11d48;"></p>
+  </div>
+</div>
 
-    <script>
-      // Profile Modal Logic
-      function openEdit() {
-        document.getElementById("editModal").style.display = "flex";
-      }
-      function closeEdit() {
-        document.getElementById("editModal").style.display = "none";
-      }
+<!-- hidden file input for profile picture -->
+<input type="file" id="profilePicInput" accept="image/*" style="display:none;">
 
-      function saveProfile() {
-        const newName = document.getElementById("editName").value;
-        if (newName) {
-          document.getElementById("name").innerText = newName;
-          document.getElementById("welcomeName").innerText = newName;
-        }
-        // Integration point: fetch('/update-profile', ...)
-        closeEdit();
-      }
+<script>
+  lucide.createIcons();
 
-      // Password Modal Logic
-      function openPasswordBox() {
-        document.getElementById("passwordModal").style.display = "flex";
-      }
-      function closePasswordBox() {
-        document.getElementById("passwordModal").style.display = "none";
-      }
+  const editModal = document.getElementById('editModal');
+  const passwordModal = document.getElementById('passwordModal');
+  const openEditBtn = document.getElementById('openEditProfileBtn');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const saveProfileBtn = document.getElementById('saveProfileBtn');
+  const changePasswordBtn = document.getElementById('changePasswordBtn');
+  const closePwdModal = document.getElementById('closePwdModalBtn');
+  const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+  const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+  const profilePicInput = document.getElementById('profilePicInput');
+  const cameraBtn = document.getElementById('cameraIconBtn');
 
-      function savePassword() {
-        const oldPass = document.getElementById("oldPass").value;
-        const newPass = document.getElementById("newPass").value;
-        const confirmPass = document.getElementById("confirmPass").value;
+  cameraBtn.addEventListener('click', () => profilePicInput.click());
+  document.getElementById('avatarUploadTrigger').addEventListener('click', () => profilePicInput.click());
 
-        if (!oldPass || !newPass || !confirmPass) {
-          alert("Please fill in all fields.");
-          return;
-        }
+  profilePicInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('profilePic', file);
+    try {
+      const res = await fetch('/profile/update', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const avatarDiv = document.getElementById('avatarImg');
+          avatarDiv.style.backgroundImage = `url(${ev.target.result})`;
+          avatarDiv.style.backgroundSize = 'cover';
+          avatarDiv.style.backgroundPosition = 'center';
+          avatarDiv.innerText = '';
+        };
+        reader.readAsDataURL(file);
+        alert('Profile picture updated');
+      } else alert('Upload failed');
+    } catch(err) { alert('Server error'); }
+  });
 
-        if (newPass !== confirmPass) {
-          alert("New passwords do not match!");
-          return;
-        }
+  openEditBtn.onclick = () => {
+    document.getElementById('editName').value = document.getElementById('displayName').innerText;
+    let phoneVal = document.getElementById('phoneText').innerText;
+    document.getElementById('editPhone').value = (phoneVal !== "Not provided") ? phoneVal : "";
+    document.getElementById('editCampus').value = (document.getElementById('campusText').innerText !== "N/A") ? document.getElementById('campusText').innerText : "";
+    document.getElementById('editBio').value = (document.getElementById('bioText').innerText !== "No bio added") ? document.getElementById('bioText').innerText : "";
+    editModal.style.display = 'flex';
+  };
+  closeModalBtn.onclick = () => editModal.style.display = 'none';
+  saveProfileBtn.onclick = async () => {
+    const fd = new FormData();
+    fd.append('name', document.getElementById('editName').value);
+    fd.append('phone', document.getElementById('editPhone').value);
+    fd.append('campus', document.getElementById('editCampus').value);
+    fd.append('bio', document.getElementById('editBio').value);
+    try {
+      const res = await fetch('/profile/update', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('displayName').innerText = document.getElementById('editName').value;
+        document.getElementById('phoneText').innerText = document.getElementById('editPhone').value || "Not provided";
+        document.getElementById('campusText').innerText = document.getElementById('editCampus').value || "N/A";
+        document.getElementById('bioText').innerText = document.getElementById('editBio').value || "No bio added";
+        const avatarDiv = document.getElementById('avatarImg');
+        if (!avatarDiv.style.backgroundImage) avatarDiv.innerText = document.getElementById('editName').value.charAt(0).toUpperCase();
+        editModal.style.display = 'none';
+        alert('Profile updated');
+      } else alert('Update failed');
+    } catch(e) { alert('Server error'); }
+  };
 
-        // Integration point: fetch('/change-password', { method: 'POST', body: ... })
-        alert("Password change request submitted!");
-        closePasswordBox();
-      }
-    </script>
-  </body>
+  changePasswordBtn.onclick = () => passwordModal.style.display = 'flex';
+  closePwdModal.onclick = () => passwordModal.style.display = 'none';
+  submitPasswordBtn.onclick = async () => {
+    const curr = document.getElementById('currentPassword').value;
+    const newP = document.getElementById('newPassword').value;
+    const conf = document.getElementById('confirmPassword').value;
+    if (!curr || !newP) { document.getElementById('passwordMsg').innerText = "Fill all fields"; return; }
+    if (newP !== conf) { document.getElementById('passwordMsg').innerText = "Passwords do not match"; return; }
+    try {
+      const res = await fetch('/profile/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: curr, newPassword: newP })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Password updated! Please login again.");
+        window.location.href = '/logout';
+      } else document.getElementById('passwordMsg').innerText = data.message || "Wrong current password";
+    } catch(e) { alert("Demo: password change simulated"); passwordModal.style.display = 'none'; }
+  };
+
+  deleteAccountBtn.onclick = async () => {
+    if (confirm("⚠️ Delete account permanently? This cannot be undone.")) {
+      try {
+        const res = await fetch('/profile/delete', { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) { alert("Account deleted"); window.location.href = '/logout'; }
+        else alert("Delete failed");
+      } catch(e) { alert("Error"); }
+    }
+  };
+
+  // Dark mode
+  const darkToggle = document.getElementById('darkModeToggle');
+  const body = document.body;
+  if (localStorage.getItem('darkMode') === 'enabled') {
+    body.classList.add('dark-mode');
+    darkToggle.classList.add('active');
+  }
+  darkToggle.addEventListener('click', () => {
+    if (body.classList.contains('dark-mode')) {
+      body.classList.remove('dark-mode');
+      darkToggle.classList.remove('active');
+      localStorage.setItem('darkMode', 'disabled');
+    } else {
+      body.classList.add('dark-mode');
+      darkToggle.classList.add('active');
+      localStorage.setItem('darkMode', 'enabled');
+    }
+    lucide.createIcons();
+  });
+
+  const notifToggle = document.getElementById('notifToggle');
+  let notifOn = true;
+  notifToggle.addEventListener('click', () => {
+    notifOn = !notifOn;
+    if (notifOn) notifToggle.classList.add('active');
+    else notifToggle.classList.remove('active');
+    alert(notifOn ? "Notifications ON" : "Notifications OFF");
+  });
+
+  window.onclick = (e) => {
+    if (e.target === editModal) editModal.style.display = 'none';
+    if (e.target === passwordModal) passwordModal.style.display = 'none';
+  };
+  setInterval(() => lucide.createIcons(), 300);
+</script>
+</body>
 </html>

@@ -1,4 +1,4 @@
 node_modules/
-.git
+.git 
 .env
-.env.*
+public/uploads
