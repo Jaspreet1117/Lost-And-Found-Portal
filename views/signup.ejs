@@ -12,9 +12,9 @@
       }
 
       body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         /* Using your provided Blue Image as background */
-        background: url('/images/signup_bg1.jpeg') no-repeat center center fixed;
+        background: url("/images/signup_bg1.jpeg") no-repeat center center fixed;
         background-size: cover;
         height: 100vh;
         display: flex;
@@ -44,11 +44,11 @@
         justify-content: center;
         color: white;
         /* background: linear-gradient(to right, rgba(171, 174, 174, 0.5), transparent); */
-        /* background-color: #999, transparent; */
-        /* opacity: 0.4; */
-      /* } */ 
+      /* background-color: #999, transparent; */
+      /* opacity: 0.4; */
+      /* } */
 
-    .welcome-section {
+      .welcome-section {
         flex: 1;
         padding: 60px 45px;
         display: flex;
@@ -74,12 +74,12 @@
         color: rgba(255, 255, 255, 0.745);
       }
 
-/* Isse pura container thoda utha hua lagega bina dark dikhe */
-.signup-page-wrapper {
-    background: rgba(21, 3, 3, 0.353); /* Almost zero visibility */
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-    /* border: 1px solid rgba(255, 255, 255, 0.1); */
-}
+      /* Isse pura container thoda utha hua lagega bina dark dikhe */
+      .signup-page-wrapper {
+        background: rgba(21, 3, 3, 0.353); /* Almost zero visibility */
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        /* border: 1px solid rgba(255, 255, 255, 0.1); */
+      }
 
       /* .welcome-section h1 {
         font-size: 2.5rem;
@@ -92,8 +92,8 @@
         font-size: 1rem;
         line-height: 1.6;
         /* color: #cccccc; */
-        /* color: black; */
-      /* } */ 
+      /* color: black; */
+      /* } */
 
       /* Right Side - Form Section */
       .auth-card {
@@ -117,7 +117,7 @@
       }
 
       .field {
-        margin-bottom:16px;
+        margin-bottom: 16px;
         position: relative;
       }
 
@@ -158,7 +158,7 @@
         overflow: hidden;
         cursor: pointer;
         position: relative;
-        background: rgba(255,255,255,0.05);
+        background: rgba(255, 255, 255, 0.05);
         /* //// */
         display: flex;
         justify-content: center;
@@ -175,7 +175,6 @@
         object-fit: cover;
         opacity: 0.8;
       }
-      
 
       .primary-btn {
         width: 100%;
@@ -215,8 +214,12 @@
 
       /* Responsive */
       @media (max-width: 768px) {
-        .welcome-section { display: none; }
-        .signup-page-wrapper { max-width: 400px; }
+        .welcome-section {
+          display: none;
+        }
+        .signup-page-wrapper {
+          max-width: 400px;
+        }
       }
     </style>
   </head>
@@ -224,7 +227,10 @@
     <div class="signup-page-wrapper">
       <div class="welcome-section">
         <h1>Let's Get Started</h1>
-        <p>Join our community to help reunite lost items with their rightful owners. Simple, secure, and helpful.</p>
+        <p>
+          Join our community to help reunite lost items with their rightful
+          owners. Simple, secure, and helpful.
+        </p>
       </div>
 
       <div class="auth-card">
@@ -232,7 +238,11 @@
 
         <form id="signupForm">
           <div class="profile-wrapper">
-            <div class="image-container" id="imageContainer" title="Upload Profile Picture">
+            <div
+              class="image-container"
+              id="imageContainer"
+              title="Upload Profile Picture"
+            >
               <img id="preview" src="/images/camera_icon.webp" alt="profile" />
             </div>
             <input
@@ -250,13 +260,18 @@
           <div class="field">
             <input type="email" id="username" placeholder="Email" required />
           </div>
-          
+
           <div class="field">
             <input type="text" id="userId" placeholder="User ID" required />
           </div>
 
           <div class="field">
-            <input type="password" id="pwd1" placeholder="Create Password" required />
+            <input
+              type="password"
+              id="pwd1"
+              placeholder="Create Password"
+              required
+            />
           </div>
 
           <div class="field">
@@ -318,8 +333,14 @@
           msg.textContent = "";
 
           const formData = new FormData();
-          formData.append("fullname", document.getElementById("fullname").value);
-          formData.append("username", document.getElementById("username").value);
+          formData.append(
+            "fullname",
+            document.getElementById("fullname").value,
+          );
+          formData.append(
+            "username",
+            document.getElementById("username").value,
+          );
           formData.append("userId", document.getElementById("userId").value);
           formData.append("password", pwd1);
           if (fileInput.files[0])
