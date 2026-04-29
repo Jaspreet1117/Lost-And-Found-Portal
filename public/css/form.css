@@ -22,7 +22,7 @@ body {
   min-height: 100vh;
   background:
     linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
-    url("/images/formImage.png");
+    url("/images/formImg.png");
 
   background-size: cover;
   background-position: center;
