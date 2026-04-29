@@ -64,7 +64,7 @@
                                          src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(item.reporterName || item.founderName || 'User') %>&background=random"
                                          alt="User" />
                                     <div class="username">
-                                        <h4><%= item.reporterName || item.founderName || 'Anonymous' %></h4>
+                                        <h4><%= item.postedBy?.name || 'Anonymous' %></h4>
                                         <p><%= new Date(item.createdAt).toLocaleDateString() %></p>
                                     </div>
                                 </div>

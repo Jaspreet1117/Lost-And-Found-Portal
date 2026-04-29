@@ -1,3 +1,4 @@
+<!-- Redesigned Profile Page UI (Pastel Orange + Green + Blue Theme) -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= user.name %> - Profile</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -18,307 +19,231 @@
       }
 
       body {
-        background: linear-gradient(135deg, #f3ece3, #e8dccb);
-        display: flex;
         min-height: 100vh;
-        color: #333;
+        background: linear-gradient(135deg, #fef6ee, #eef8f1, #eef7fb);
+        color: #2f3b36;
+        padding: 30px;
       }
 
-      /* MAIN AREA */
-      .main {
-        flex: 1;
-        padding: 20px 40px;
-        background: #faf6f0;
-        margin: 20px 20px 20px 20px;
-        border-radius: 18px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-      }
-
-      /* COVER SECTION */
-      .cover {
-        height: 250px;
-        border-radius: 40px;
-        position: relative;
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(14px);
+        border-radius: 28px;
         overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
       }
 
-      .cover img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .cover::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          135deg,
-          rgba(37, 99, 235, 0.4),
-          rgba(30, 58, 138, 0.5)
-        );
-      }
-
-      .cover-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        color: white;
-        z-index: 2;
-        width: 100%;
-      }
-
-      /* PROFILE OVERLAP BAR */
-      .profile-bar {
-        background: #fffaf5;
-        margin: -40px 20px 0 20px;
-        border-radius: 15px;
-        padding: 20px 30px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+      .cover {
+        height: 260px;
+        background: linear-gradient(120deg, #ffd8b5, #d7f5dc, #d7efff);
         position: relative;
-        z-index: 3;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 40px;
+        display: flex;
+        align-items: end;
       }
 
-      .profile-left {
+      .welcome h1 {
+        font-size: 34px;
+        color: #234;
+        margin-bottom: 8px;
+      }
+
+      .welcome p {
+        color: #4b5b58;
+        font-size: 15px;
+      }
+
+      .profile-bar {
+        margin-top: -55px;
+        padding: 0 40px 30px;
         display: flex;
+        justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
         gap: 20px;
       }
 
+      .left {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+
       .avatar {
-        width: 110px;
-        height: 110px;
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
-        border: 5px solid white;
         object-fit: cover;
-        background: #eee;
+        border: 6px solid white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        background: white;
       }
 
-      .profile-info h3 {
-        font-size: 22px;
-        color: #05122c;
+      .info h2 {
+        font-size: 26px;
+        color: #1f3a37;
       }
-      .profile-info p {
+
+      .role {
+        color: #688178;
+        margin: 6px 0 14px;
         font-size: 14px;
-        color: #666;
-        margin-bottom: 10px;
       }
 
-      .profile-buttons button {
-        background: #e8dccb;
+      .btns button {
         border: none;
-        padding: 8px 18px;
-        border-radius: 8px;
+        padding: 11px 18px;
+        border-radius: 14px;
         cursor: pointer;
-        font-weight: 500;
-        transition: background 0.2s;
-        margin-right: 5px;
+        font-weight: 600;
+        margin-right: 10px;
       }
 
-      .profile-buttons .pass-btn {
-        background: #2563eb;
-        color: white;
+      .edit-btn {
+        background: #ffe4c8;
+        color: #7a4d1d;
       }
 
-      /* STATS SECTION */
+      .pass-btn {
+        background: #d8f4df;
+        color: #256245;
+      }
+
       .stats {
         display: flex;
-        gap: 40px;
-      }
-      .stats div {
-        text-align: center;
-        line-height: 1.4;
-      }
-      .stats b {
-        font-size: 20px;
-        color: #1e3a8a;
+        gap: 18px;
+        flex-wrap: wrap;
       }
 
-      /* INFORMATION CARD */
+      .stat-card {
+        min-width: 120px;
+        background: white;
+        padding: 18px;
+        border-radius: 18px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      }
+
+      .stat-card h3 {
+        font-size: 24px;
+        color: #2d5b70;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        padding: 10px 40px 40px;
+      }
+
       .card {
-        background: #fffaf5;
-        padding: 30px;
-        border-radius: 12px;
-        margin-top: 25px;
+        background: white;
+        padding: 28px;
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
       }
 
       .card h3 {
-        margin-bottom: 15px;
-        color: #0f234d;
-        border-bottom: 2px solid #e8dccb;
-        display: inline-block;
+        margin-bottom: 18px;
+        color: #234;
       }
 
-      /* MODALS */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
+      .line {
+        margin-bottom: 14px;
+        line-height: 1.7;
       }
 
-      .modal-content {
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        width: 400px;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+      .label {
+        font-weight: 600;
       }
 
-      .modal-content input,
-      .modal-content textarea {
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        width: 100%;
-      }
+      @media (max-width: 900px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
 
-      .modal-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 10px;
-      }
-
-      .modal-buttons button {
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        border: none;
-      }
-
-      .save-btn {
-        background: #1e3a8a;
-        color: white;
-      }
-      .cancel-btn {
-        background: #eee;
-        color: #333;
+        .profile-bar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
       }
     </style>
   </head>
-
   <body>
-    <div class="main">
+    <div class="container">
       <div class="cover">
-        <img
-          src="<%= user.coverImage || 'https://i.pinimg.com/1200x/41/74/b9/4174b96d7a37d5982fe53cba5343beab.jpg' %>"
-          alt="Cover"
-        />
-        <div class="cover-text">
-          <h2>Welcome, <span id="welcomeName"><%= user.name %></span></h2>
-          <p>Helping you reunite with your belongings.</p>
+        <div class="welcome">
+          <h1>Welcome, <%= user.name %></h1>
+          <p>Your lost & found journey, beautifully organized.</p>
         </div>
       </div>
 
       <div class="profile-bar">
-        <div class="profile-left">
+        <div class="left">
           <img
-            id="avatar"
-            src="<%= user.profilePic || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' %>"
             class="avatar"
+            src="<%= user.profilePic || '/images/default.png' %>"
+            alt="profile"
           />
-          <div class="profile-info">
-            <h3 id="name"><%= user.name %></h3>
-            <p><%= user.role || 'Community Member' %></p>
-            <div class="profile-buttons">
-              <button onclick="openEdit()">Edit Profile</button>
-              <button class="pass-btn" onclick="openPasswordBox()">
-                Change Password
-              </button>
+
+          <div class="info">
+            <h2><%= user.name %></h2>
+            <div class="role"><%= user.role || 'Community Member' %></div>
+
+            <div class="btns">
+              <button class="edit-btn">Edit Profile</button>
+              <button class="pass-btn">Change Password</button>
             </div>
           </div>
         </div>
 
         <div class="stats">
-          <div><b><%= user.stats ? user.stats.lost : 0 %></b><br />Lost</div>
-          <div><b><%= user.stats ? user.stats.found : 0 %></b><br />Found</div>
-          <div>
-            <b><%= user.stats ? user.stats.returned : 0 %></b><br />Returned
+          <div class="stat-card">
+            <h3><%= user.stats ? user.stats.lost : 0 %></h3>
+            <p>Lost</p>
+          </div>
+          <div class="stat-card">
+            <h3><%= user.stats ? user.stats.found : 0 %></h3>
+            <p>Found</p>
+          </div>
+          <div class="stat-card">
+            <h3><%= user.stats ? user.stats.returned : 0 %></h3>
+            <p>Returned</p>
           </div>
         </div>
       </div>
 
-      <div class="card">
-        <h3>Bio & Contact</h3>
-        <p id="bio"><i><%= user.bio || 'No bio provided yet.' %></i></p>
-        <br />
-        <p><b>Email:</b> <span id="email"><%= user.email %></span></p>
-        <p>
-          <b>Phone:</b>
-          <span id="phone"><%= user.phone || 'Not provided' %></span>
-        </p>
-        <p>
-          <b>Campus:</b>
-          <span id="campus"><%= user.campus || 'Not assigned' %></span>
-        </p>
-      </div>
-    </div>
-
-    <div class="modal" id="editModal">
-      <div class="modal-content">
-        <h3>Update Profile</h3>
-        <input
-          type="text"
-          id="editName"
-          placeholder="Name"
-          value="<%= user.name %>"
-        />
-        <input
-          type="text"
-          id="editPhone"
-          placeholder="Phone"
-          value="<%= user.phone %>"
-        />
-        <input
-          type="text"
-          id="editCampus"
-          placeholder="Campus"
-          value="<%= user.campus %>"
-        />
-        <textarea id="editBio" placeholder="Tell us about yourself...">
-<%= user.bio %></textarea
-        >
-        <div class="modal-buttons">
-          <button class="cancel-btn" onclick="closeEdit()">Cancel</button>
-          <button class="save-btn" onclick="saveProfile()">Save Changes</button>
+      <div class="content">
+        <div class="card">
+          <h3>Bio & Contact</h3>
+          <div class="line">
+            <span class="label">Bio:</span> <%= user.bio || 'No bio added yet.'
+            %>
+          </div>
+          <div class="line">
+            <span class="label">Email:</span> <%= user.email %>
+          </div>
+          <div class="line">
+            <span class="label">Phone:</span> <%= user.phone || 'Not provided'
+            %>
+          </div>
+          <div class="line">
+            <span class="label">Campus:</span> <%= user.campus || 'Not assigned'
+            %>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="modal" id="passwordModal">
-      <div class="modal-content">
-        <h3>Change Password</h3>
-        <input type="password" id="oldPass" placeholder="Current Password" />
-        <input type="password" id="newPass" placeholder="New Password" />
-        <input
-          type="password"
-          id="confirmPass"
-          placeholder="Confirm New Password"
-        />
-        <div class="modal-buttons">
-          <button class="cancel-btn" onclick="closePasswordBox()">
-            Cancel
-          </button>
-          <button class="save-btn" onclick="savePassword()">
-            Update Password
-          </button>
+        <div class="card">
+          <h3>Quick Summary</h3>
+          <div class="line">
+            Keep your details updated so people can reach you faster when your
+            items are found.
+          </div>
+          <div class="line">
+            Your profile helps improve trust and successful returns.
+          </div>
         </div>
       </div>
     </div>
@@ -380,24 +305,51 @@
         document.getElementById("passwordModal").style.display = "none";
       }
 
-      function savePassword() {
-        const oldPass = document.getElementById("oldPass").value;
-        const newPass = document.getElementById("newPass").value;
-        const confirmPass = document.getElementById("confirmPass").value;
+      async function savePassword() {
+        const oldPassword = document.getElementById("oldPass").value;
+        const newPassword = document.getElementById("newPass").value;
+        const confirmPassword = document.getElementById("confirmPass").value;
 
-        if (!oldPass || !newPass || !confirmPass) {
-          alert("Please fill in all fields.");
+        if (!oldPassword || !newPassword || !confirmPassword) {
+          alert("Please fill all fields");
           return;
         }
 
-        if (newPass !== confirmPass) {
-          alert("New passwords do not match!");
+        if (newPassword !== confirmPassword) {
+          alert("New passwords do not match");
           return;
         }
 
-        // Integration point: fetch('/change-password', { method: 'POST', body: ... })
-        alert("Password change request submitted!");
-        closePasswordBox();
+        try {
+          const res = await fetch("/change-password", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              oldPassword,
+              newPassword,
+              confirmPassword,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            alert("Password updated successfully!");
+
+            document.getElementById("oldPass").value = "";
+            document.getElementById("newPass").value = "";
+            document.getElementById("confirmPass").value = "";
+
+            closePasswordBox();
+          } else {
+            alert(data.message || "Password update failed");
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Server error");
+        }
       }
     </script>
   </body>

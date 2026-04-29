@@ -251,8 +251,9 @@ app.get(
 app.get("/dashboard", verifyToken, async (req, res) => {
   try {
     const [lostItems, foundItems] = await Promise.all([
-      LostItem.find().sort({ createdAt: -1 }).lean(),
-      FoundItem.find().sort({ createdAt: -1 }).lean(),
+      LostItem.find().populate("postedBy").sort({ createdAt: -1 }).lean(),
+
+      FoundItem.find().populate("postedBy").sort({ createdAt: -1 }).lean(),
     ]);
 
     // Tag each item with its status so the dashboard template can filter
@@ -439,6 +440,65 @@ app.post(
     }
   },
 );
+app.post("/change-password", verifyToken, async (req, res) => {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    // validation
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return res.json({
+        success: false,
+        message: "Please fill all fields",
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.json({
+        success: false,
+        message: "New passwords do not match",
+      });
+    }
+
+    // get logged-in user
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // check old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isMatch) {
+      return res.json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // update password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Change password error:", error);
+
+    res.json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
 // ─── Logout ───────────────────────────────────────────────────────────────────
 app.get("/logout", (req, res) => {
   res.clearCookie("token");
