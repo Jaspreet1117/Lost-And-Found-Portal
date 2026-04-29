@@ -30,9 +30,9 @@ const userSchema = new mongoose.Schema({
     unique: true,
   },
   userId: {
-  type: String,
-  unique: true,
-},
+    type: String,
+    unique: true,
+  },
   password: String,
 
   profilePic: {
@@ -110,6 +110,7 @@ passport.use(
             email,
             googleId: profile.id,
             provider: "google",
+            userId: "USER" + Date.now(),
             profilePic: profile.photos?.[0]?.value,
           });
           await user.save();
@@ -158,19 +159,19 @@ app.post("/signup", upload.single("profilePic"), async (req, res) => {
     }
 
     const existing = await User.findOne({ email: username });
-    
+
     if (existing) {
       return res
         .status(409)
         .json({ success: false, message: "Email already registered" });
     }
     const existingUserId = await User.findOne({ userId });
-if (existingUserId) {
-  return res.status(409).json({
-    success: false,
-    message: "User ID already taken",
-  });
-}
+    if (existingUserId) {
+      return res.status(409).json({
+        success: false,
+        message: "User ID already taken",
+      });
+    }
 
     const hashed = await bcrypt.hash(password, 10);
     const profilePic = req.file
@@ -311,8 +312,7 @@ app.post(
         });
       }
 
-      const imagePath = req.file ? req.file.filename : null;
-
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
       const lostItem = new LostItem({
         reporterName: firstName + " " + lastName,
         title: category,
@@ -364,7 +364,7 @@ app.post(
           .json({ success: false, message: "Please fill all required fields" });
       }
 
-      const imagePath = req.file ? req.file.filename : null;
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
       const foundItem = new FoundItem({
         founderName,
@@ -380,10 +380,14 @@ app.post(
       });
 
       await foundItem.save();
-      return res.json({ success: true, message: "Found item reported!" });
+      // await lostItem.save();
+
+      res.redirect("/dashboard");
     } catch (err) {
-      console.error("Report found error:", err);
-      return res.status(500).json({ success: false, message: "Server error" });
+      console.error(err);
+      res.render("report-lost", {
+        error: "Server error",
+      });
     }
   },
 );

@@ -61,10 +61,13 @@
                             <div class="user-post">
                                 <div class="post-header-left">
                                     <img class="post-logo"
-                                         src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(item.reporterName || item.founderName || 'User') %>&background=random"
-                                         alt="User" />
+     src="<%= item.postedBy?.profilePic && item.postedBy.profilePic !== '/images/default.png'
+        ? item.postedBy.profilePic
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.postedBy?.userId || item.postedBy?.name || 'User')}&background=random`
+     %>"
+     alt="User Profile" />
                                     <div class="username">
-                                        <h4><%= item.postedBy?.name || 'Anonymous' %></h4>
+                                        <h4><%= item.postedBy?.userId || item.postedBy?.name || 'Anonymous' %></h4>
                                         <p><%= new Date(item.createdAt).toLocaleDateString() %></p>
                                     </div>
                                 </div>
@@ -80,7 +83,7 @@
                             <div class="item">
                                 <div class="item-image">
                                     <% if (item.imagePath) { %>
-                                        <img src="/uploads/<%= item.imagePath %>" alt="<%= item.title || item.brandColor %>" />
+                                        <img  src="<%= item.imagePath %>" alt="<%= item.title || item.brandColor %>" />
                                     <% } else { %>
                                         <img src="/images/placeholder.png" alt="No image" />
                                     <% } %>
@@ -95,12 +98,13 @@
                                     </div>
                                     <div class="info-middle">
                                         <p class="info-row">
-                                            <span class="label">📍 Location</span>
-                                            <span class="value"><%= item.location %></span>
+                                            <span class="value">📍 <%= item.location %></span>
                                         </p>
+
                                         <p class="info-row">
-                                            <span class="label">📆 Date</span>
-                                            <span class="value"><%= item.dateLost || item.foundDate || '' %></span>
+                                            <span class="value">
+                                                📆 <%= new Date(item.dateLost || item.foundDate).toLocaleDateString() %>
+                                            </span>
                                         </p>
                                     </div>
                                     <button class="view-details-btn" data-id="<%= item._id %>">

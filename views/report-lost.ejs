@@ -10,19 +10,30 @@
       crossorigin="anonymous"
     ></script>
   </head>
-  <body>
+  <body class="bg-page">
     <main>
       <div class="form-body">
-        <div class="header">
-          <h2 style="margin-bottom: 2px">Report a Lost Item</h2>
-          <p style="margin: 0">
-            Fill out the details below to help us find your missing item 😊.
-          </p>
+        <div class="top-header">
+          <div class="header">
+            <h2 style="margin-bottom: 2px">Report a Lost Item</h2>
+            <p style="margin: 0">
+              Fill out the details below to help us find your missing item 😊.
+            </p>
+          </div>
+          <a href="javascript:history.back()" class="back-btn"> ← Back </a>
         </div>
         <hr />
 
-        <form action="" method="POST" enctype="multipart/form-data">
-          <div class="sections">
+        <form
+          action=""
+          method="POST"
+          enctype="multipart/form-data"
+          style="padding: 10px; gap: 10px"
+        >
+          <div
+            class="sections"
+            style="background-color: rgba(0, 123, 255, 0.1)"
+          >
             <h3>Section 1: Contact Information</h3>
             <div class="section1">
               <div class="fullName sec1">
@@ -40,7 +51,10 @@
             </div>
           </div>
 
-          <div class="sections">
+          <div
+            class="sections"
+            style="background-color: rgba(255, 166, 0, 0.1)"
+          >
             <h3>Section 2: Item Details</h3>
             <div class="section2">
               <div class="left">
@@ -71,7 +85,10 @@
             </div>
           </div>
 
-          <div class="sections">
+          <div
+            class="sections"
+            style="background-color: rgba(34, 122, 34, 0.1)"
+          >
             <h3>Section 3: Loss Location & Date</h3>
             <div class="section3">
               <div class="up">
@@ -88,10 +105,10 @@
                     required
                   />
                 </div>
-                <div class="map">
+                <!-- <div class="map">
                   <label>&nbsp;</label>
-                  <button type="button" class="btn-map">Pin on map</button>
-                </div>
+                  <!-- <button type="button" class="btn-map">Pin on map</button> -->
+                <!-- </div> -->
               </div>
               <div class="down">
                 <div class="lost-location">
