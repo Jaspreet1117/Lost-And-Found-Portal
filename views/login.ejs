@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -9,89 +9,216 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
     <style>
+      :root {
+        --text-primary: rgba(255, 255, 255, 0.95);
+        --text-secondary: rgba(255, 255, 255, 0.7);
+        --input-border: rgba(255, 255, 255, 0.2);
+        --btn-color: #0d876d;
+        --btn-hover: #11a687;
+        --glass-color: rgba(255, 255, 255, 0.03);
+        --blur-amount: 15px;
+      }
+
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: url("/images/signup_bg1.png") no-repeat center center fixed;
+        background-size: cover;
       }
 
       .login-page-wrapper {
-        height: 100vh;
+        width: 860px;
+        height: 500px; /* Slightly shorter than signup as there are fewer fields */
         display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: "Segoe UI", sans-serif;
-        background: linear-gradient(135deg, #dde5ed 0%, #d0d6e6 100%);
-        position: relative;
         overflow: hidden;
-      }
-
-      .login-page-wrapper .auth-card {
-        width: 350px;
-        padding: 35px;
         border-radius: 20px;
-        background: rgba(0, 0, 0, 0.25);
-        backdrop-filter: blur(20px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        color: white;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
+        margin: 20px;
       }
 
-      .login-page-wrapper .input-group {
-        margin-bottom: 18px;
+      /* Glass layer consistent with Signup */
+      .modal-bg-base {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(var(--blur-amount));
+        -webkit-backdrop-filter: blur(var(--blur-amount));
+        z-index: 1;
       }
 
-      .login-page-wrapper .input-group label {
+      /* Left Side - Welcome Section */
+      .welcome-section {
+        flex: 1;
+        padding: 60px 45px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: var(--text-primary);
+        z-index: 2;
+        background-color: var(--glass-color);
+        border-right: 1px solid rgba(255, 255, 255, 0.03);
+      }
+
+      .welcome-section h1 {
+        font-size: 38px;
+        margin-bottom: 20px;
+        font-weight: 700;
+      }
+
+      .welcome-section p {
+        font-size: 16px;
+        line-height: 1.8;
+        color: var(--text-secondary);
+      }
+
+      /* Right Side - Form Section */
+      /* .auth-card {
+        width: 440px;
+        padding: 50px 60px;
+        background-color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        z-index: 2;
+      }
+
+      .auth-card h2 {
+        color: var(--text-primary);
+        font-size: 26px;
+        margin-bottom: 30px;
+        text-align: center;
+        color: black;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      .input-group label {
         font-size: 13px;
-        opacity: 0.8;
-        display: block;
-        margin-bottom: 4px;
+        color: var(--text-secondary);
+        /* display: block; */
+      /* margin-bottom: 8px; */
+      /* } */
+
+      /* .input-group input {
+        width: 100%;
+        padding: 12px 15px;
+        /* background-color: rgba(0, 0, 0, 0.15); */
+      /* border: 1px solid var(--input-border); */
+      /* border-radius: 8px; */
+      /* color: var(--text-primary); */
+      /* outline: none; */
+      /* font-size: 14px; */
+      /* transition: all 0.3s ease; */
+      /* }  */
+
+      /* .input-group input:focus {
+        border-color: var(--btn-color);
+        box-shadow: 0 0 0 3px rgba(13, 135, 109, 0.1);
+      } */
+
+      .auth-card {
+        width: 440px;
+        padding: 50px 60px;
+        background-color: white; /* Solid white ko transparent kiya */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        z-index: 2;
       }
 
-      .login-page-wrapper .input-group input {
+      .auth-card h2 {
+        color: var(--text-primary);
+        font-size: 26px;
+        margin-bottom: 30px;
+        text-align: center;
+        color: black;
+      }
+
+      .input-group input {
         width: 100%;
+        height: 55px;
+        padding: 10px 0; /* Padding adjust ki line ke liye */
+        background-color: transparent; /* Box background remove kiya */
         border: none;
-        border-bottom: 1px solid white;
-        background: transparent;
-        color: white;
-        padding: 8px 0;
+        border-bottom: 1px solid var(--input-border); /* Sirf niche ki line */
+        color: var(--text-primary);
+        /* color */
         outline: none;
-        font-size: 14px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        border-radius: 0; /* Corner radius zero taaki line straight lage */
+        border-color: black;
       }
 
-      .login-page-wrapper .input-group input::placeholder {
-        color: rgba(255, 255, 255, 0.5);
+      .input-group input:focus {
+        border-color: rgb(110, 186, 189); /* Focus karne par line green hogi */
+        box-shadow: none; /* Box shadow hata di kyunki ab sirf line hai */
+        color: black;
       }
 
-      .login-page-wrapper .btn {
+      .btn {
         width: 100%;
-        padding: 12px;
-        border-radius: 25px;
-        border: none;
-        background: #1e1b6b;
+        padding: 14px;
+        background-color: var(--btn-color);
+        /* color: rgb(21, 20, 20); */
         color: white;
-        margin-top: 15px;
+        border: none;
+        border-radius: 8px;
         cursor: pointer;
         font-size: 15px;
-        transition: background 0.2s;
+        font-weight: 600;
+        margin-top: 10px;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
       }
 
-      .login-page-wrapper .btn:hover {
-        background: #2a26a5;
+      .btn:hover {
+        background-color: var(--btn-hover);
+        transform: translateY(-1px);
       }
 
-      .login-page-wrapper .btn:disabled {
-        opacity: 0.6;
+      .btn:disabled {
+        background-color: #3f6b61;
         cursor: not-allowed;
       }
 
-      .login-page-wrapper .google-btn {
+      .divider {
+        text-align: center;
+        margin: 0px 0;
+        margin-bottom: 5px;
+        padding-bottom: 20px;
+        padding-top: 0px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        position: relative;
+        color: black;
+      }
+
+      .google-btn {
         width: 100%;
         padding: 12px;
-        border-radius: 25px;
-        border: none;
-        background: white;
-        color: black;
-        font-weight: 600;
+        border-radius: 8px;
+        border: 1px solid rgba(12, 12, 12, 0.048);
+        background: rgba(0, 0, 0, 0.315);
+        color: rgb(40, 39, 39);
+        font-weight: 500;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -99,29 +226,23 @@
         gap: 10px;
         text-decoration: none;
         font-size: 14px;
-        transition: background 0.2s;
+        transition: background 0.3s;
       }
 
-      .login-page-wrapper .google-btn:hover {
-        background: #f1f1f1;
+      .google-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
       }
 
-      .login-page-wrapper .divider {
+      .footer-text {
         text-align: center;
-        margin: 15px 0;
-        font-size: 12px;
-        opacity: 0.7;
-      }
-
-      .login-page-wrapper .footer-text {
-        text-align: center;
-        margin-top: 15px;
+        margin-top: 20px;
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-secondary);
+        color: black;
       }
 
-      .login-page-wrapper .footer-text a {
-        color: #9ecbff;
+      .footer-text a {
+        color: var(--btn-color);
         text-decoration: none;
         font-weight: 600;
       }
@@ -133,16 +254,40 @@
         margin-top: 10px;
         min-height: 18px;
       }
+
+      @media (max-width: 860px) {
+        .welcome-section {
+          display: none;
+        }
+        .login-page-wrapper {
+          width: 95%;
+          max-width: 400px;
+          height: auto;
+        }
+        .auth-card {
+          width: 100%;
+          padding: 40px 30px;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="login-page-wrapper">
+      <div class="modal-bg-base"></div>
+
+      <div class="welcome-section">
+        <h1>Welcome Back</h1>
+        <p>
+          Log in to manage your reports and help our community stay connected.
+        </p>
+      </div>
+
       <div class="auth-card">
-        <h2 style="text-align: center; margin-bottom: 25px">Log In</h2>
+        <h2>Log In</h2>
 
         <form id="loginForm">
           <div class="input-group">
-            <label>Email</label>
+            <!-- <label>Email</label> -->
             <input
               type="email"
               id="username"
@@ -152,7 +297,7 @@
           </div>
 
           <div class="input-group">
-            <label>Password</label>
+            <!-- <label>Password</label> -->
             <input
               type="password"
               id="pwd1"
@@ -168,9 +313,8 @@
 
         <div class="divider">OR</div>
 
-        <!-- Google OAuth: simple link, no JS needed -->
         <a href="/auth/google" class="google-btn">
-          <i class="fa-brands fa-google" style="color: #e50b0b"></i>
+          <i class="fa-brands fa-google" style="color: #ff4b4b"></i>
           Continue with Google
         </a>
 
@@ -181,6 +325,7 @@
     </div>
 
     <script>
+      /* JS logic remains untouched */
       document
         .getElementById("loginForm")
         .addEventListener("submit", async function (e) {
@@ -205,7 +350,6 @@
             const data = await res.json();
 
             if (data.success) {
-              // Token is stored in httpOnly cookie by the server — just redirect
               window.location.href = "/dashboard";
             } else {
               errorMsg.textContent =

@@ -1,31 +1,46 @@
 const mongoose = require("mongoose");
 
-// Lost Item Schema (Matches fields in report-lost.ejs)
+// Lost Item Schema
 const lostItemSchema = new mongoose.Schema({
-  fullName: String,
-  phone: String,
+  reporterName: String,
+  title: String,
   category: String,
   description: String,
-  itemImage: String,
+
+  imagePath: String, // FIXED
+
   dateLost: Date,
   location: String,
   locationDetails: String,
+  contactPhone: String,
+
+  postedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
   status: { type: String, default: "lost" },
   createdAt: { type: Date, default: Date.now },
 });
 
-// Found Item Schema (Matches fields in report-found.ejs)
+// Found Item Schema
 const foundItemSchema = new mongoose.Schema({
   founderName: String,
-  email: String,
-  phone: String,
-  relation: String,
-  itemType: String,
   brandColor: String,
+  itemType: String,
   location: String,
   foundDate: Date,
-  details: String,
-  itemImage: String,
+  description: String,
+  contactEmail: String,
+  contactPhone: String,
+
+  imagePath: String, // FIXED
+
+  postedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
   status: { type: String, default: "found" },
   createdAt: { type: Date, default: Date.now },
 });

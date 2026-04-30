@@ -6,7 +6,7 @@
     <title>Campus Lost & Found - Report Item</title>
     <link rel="stylesheet" href="/css/form.css" />
   </head>
-  <body>
+  <body class="bg-page">
     <div class="container">
       <div class="form-card">
         <h2>Found Item Submission Form</h2>
@@ -17,13 +17,13 @@
         </p>
 
         <form
-          action="/submit-found-report"
+          action="/report-found"
           method="POST"
           enctype="multipart/form-data"
         >
           <div class="form-grid">
             <div class="left-col">
-              <section>
+              <section style="background-color: rgba(0, 123, 255, 0.1)">
                 <h3>Founder Information</h3>
                 <div class="row-3">
                   <div class="form-group">
@@ -49,8 +49,37 @@
                   </select>
                 </div>
               </section>
+              <section style="background-color: rgba(34, 122, 34, 0.1)">
+                <h3>Item Image</h3>
+                <div class="image-upload-box">
+                  <label
+                    >Attach Photo of Found Item<span class="required"
+                      >*</span
+                    ></label
+                  >
+                  <div class="upload-zone">
+                    <input
+                      type="file"
+                      name="itemImage"
+                      id="imageInput"
+                      required
+                    />
+                    <div class="preview-area">
+                      <!-- <img
+                        src="/placeholder-icon.png"
+                        alt="Preview"
+                        class="preview-icon"
+                      /> -->
+                      <!-- <p>Preview</p>
+                      <span class="file-name">image_item.jpg</span> -->
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
 
-              <section>
+            <div class="right-col">
+              <section style="background-color: rgba(255, 166, 0, 0.1)">
                 <h3>Item Description</h3>
                 <div class="form-group">
                   <label>Item Type<span class="required">*</span></label>
@@ -95,40 +124,11 @@
                 </div>
               </section>
             </div>
-
-            <div class="right-col">
-              <section>
-                <h3>Item Image</h3>
-                <div class="image-upload-box">
-                  <label
-                    >Attach Photo of Found Item<span class="required"
-                      >*</span
-                    ></label
-                  >
-                  <div class="upload-zone">
-                    <input
-                      type="file"
-                      name="itemImage"
-                      id="imageInput"
-                      required
-                    />
-                    <div class="preview-area">
-                      <img
-                        src="/placeholder-icon.png"
-                        alt="Preview"
-                        class="preview-icon"
-                      />
-                      <p>Preview</p>
-                      <span class="file-name">image_item.jpg</span>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </div>
           </div>
 
           <div class="form-footer">
-            <button type="button" class="btn-secondary">Back to Listing</button>
+            <a href="/dashboard" class="btn-secondary"> ← Back to Dashboard </a>
+
             <button type="submit" class="btn-primary">
               Submit Found Report
             </button>

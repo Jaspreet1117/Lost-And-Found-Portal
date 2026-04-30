@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
+  userId: {
+    type: String,
+    unique: true,
+  },
   password: String,
 
   profilePic: {
@@ -106,6 +110,7 @@ passport.use(
             email,
             googleId: profile.id,
             provider: "google",
+            userId: "USER" + Date.now(),
             profilePic: profile.photos?.[0]?.value,
           });
           await user.save();
@@ -145,7 +150,7 @@ app.get("/signup", (req, res) => res.render("signup"));
 // POST /signup
 app.post("/signup", upload.single("profilePic"), async (req, res) => {
   try {
-    const { fullname, username, password } = req.body;
+    const { fullname, username, password, userId } = req.body;
 
     if (!fullname || !username || !password) {
       return res
@@ -154,10 +159,18 @@ app.post("/signup", upload.single("profilePic"), async (req, res) => {
     }
 
     const existing = await User.findOne({ email: username });
+
     if (existing) {
       return res
         .status(409)
         .json({ success: false, message: "Email already registered" });
+    }
+    const existingUserId = await User.findOne({ userId });
+    if (existingUserId) {
+      return res.status(409).json({
+        success: false,
+        message: "User ID already taken",
+      });
     }
 
     const hashed = await bcrypt.hash(password, 10);
@@ -169,6 +182,7 @@ app.post("/signup", upload.single("profilePic"), async (req, res) => {
       name: fullname,
       email: username,
       password: hashed,
+      userId,
       profilePic,
       provider: "local",
     });
@@ -251,8 +265,9 @@ app.get(
 app.get("/dashboard", verifyToken, async (req, res) => {
   try {
     const [lostItems, foundItems] = await Promise.all([
-      LostItem.find().sort({ createdAt: -1 }).lean(),
-      FoundItem.find().sort({ createdAt: -1 }).lean(),
+      LostItem.find().populate("postedBy").sort({ createdAt: -1 }).lean(),
+
+      FoundItem.find().populate("postedBy").sort({ createdAt: -1 }).lean(),
     ]);
 
     // Tag each item with its status so the dashboard template can filter
@@ -297,8 +312,7 @@ app.post(
         });
       }
 
-      const imagePath = req.file ? req.file.filename : null;
-
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
       const lostItem = new LostItem({
         reporterName: firstName + " " + lastName,
         title: category,
@@ -350,7 +364,7 @@ app.post(
           .json({ success: false, message: "Please fill all required fields" });
       }
 
-      const imagePath = req.file ? req.file.filename : null;
+      const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
       const foundItem = new FoundItem({
         founderName,
@@ -366,10 +380,14 @@ app.post(
       });
 
       await foundItem.save();
-      return res.json({ success: true, message: "Found item reported!" });
+      // await lostItem.save();
+
+      res.redirect("/dashboard");
     } catch (err) {
-      console.error("Report found error:", err);
-      return res.status(500).json({ success: false, message: "Server error" });
+      console.error(err);
+      res.render("report-lost", {
+        error: "Server error",
+      });
     }
   },
 );
@@ -439,6 +457,65 @@ app.post(
     }
   },
 );
+app.post("/change-password", verifyToken, async (req, res) => {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    // validation
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return res.json({
+        success: false,
+        message: "Please fill all fields",
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.json({
+        success: false,
+        message: "New passwords do not match",
+      });
+    }
+
+    // get logged-in user
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // check old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isMatch) {
+      return res.json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // update password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Change password error:", error);
+
+    res.json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
 // ─── Logout ───────────────────────────────────────────────────────────────────
 app.get("/logout", (req, res) => {
   res.clearCookie("token");
