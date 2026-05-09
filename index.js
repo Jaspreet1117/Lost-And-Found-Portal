@@ -461,7 +461,6 @@ app.post("/change-password", verifyToken, async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
 
-    // validation
     if (!oldPassword || !newPassword || !confirmPassword) {
       return res.json({
         success: false,
@@ -476,7 +475,6 @@ app.post("/change-password", verifyToken, async (req, res) => {
       });
     }
 
-    // get logged-in user
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -486,7 +484,6 @@ app.post("/change-password", verifyToken, async (req, res) => {
       });
     }
 
-    // check old password
     const isMatch = await bcrypt.compare(oldPassword, user.password);
 
     if (!isMatch) {
@@ -496,10 +493,8 @@ app.post("/change-password", verifyToken, async (req, res) => {
       });
     }
 
-    // hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // update password
     user.password = hashedPassword;
     await user.save();
 
@@ -516,7 +511,7 @@ app.post("/change-password", verifyToken, async (req, res) => {
     });
   }
 });
-// ─── Logout ───────────────────────────────────────────────────────────────────
+
 app.get("/logout", (req, res) => {
   res.clearCookie("token");
   res.redirect("/login");
