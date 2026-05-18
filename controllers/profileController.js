@@ -1,21 +1,58 @@
+// const User = require("../models/User");
+
+// const bcrypt = require("bcrypt");
 const User = require("../models/User");
+// Apne project ke actual Lost aur Found models ko yahan require karein
+const Lost = require("../models/Lost"); 
+const Found = require("../models/Found"); 
 
 const bcrypt = require("bcrypt");
 
-exports.getProfile = async (
-  req,
-  res,
-) => {
+// GET Profile page with user's specific posts
+exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(
-      req.user.id,
-    );
+    // 1. User ki profile details fetch karein
+    const user = await User.findById(req.user.id);
 
-    res.render("profile", { user });
+    // 2. Sirf is logged-in user ke kiye hue Lost aur Found reports fetch karein
+    // Maan lete hain ki models mein user ki id 'postedBy' ya 'userId' naam se save hoti hai
+    const lostItems = await Lost.find({ postedBy: req.user.id }).sort({ createdAt: -1 });
+    const foundItems = await Found.find({ postedBy: req.user.id }).sort({ createdAt: -1 });
+
+    // 3. Ye saara data profile.ejs template ko pass kar dein
+    res.render("profile", { 
+      user, 
+      lostItems: lostItems || [], 
+      foundItems: foundItems || [] 
+    });
   } catch (err) {
     console.log(err);
+    res.status(500).send("Server Error");
   }
 };
+
+// exports.getProfile = async (req, res) => {
+//   try {
+//     // 1. Logged-in user ki details fetch karein
+//     const user = await User.findById(req.user.id);
+
+//     // 2. Is user ke dwara post kiye gaye Lost Items fetch karein
+//     const lostItems = await LostItem.find({ postedBy: req.user.id }).sort({ createdAt: -1 });
+
+//     // 3. Is user ke dwara post kiye gaye Found Items fetch karein
+//     const foundItems = await FoundItem.find({ postedBy: req.user.id }).sort({ createdAt: -1 });
+
+//     // 4. Sabhi data ko profile view me pass karein
+//     res.render("profile", { 
+//       user, 
+//       lostItems, 
+//       foundItems 
+//     });
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).send("Server Error");
+//   }
+// };
 
 exports.updateProfile = async (
   req,
