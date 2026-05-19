@@ -1,5 +1,3 @@
-<!-- 
-  -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -21,9 +19,26 @@
                 <a class="nav-link" href="/report-lost">REPORT LOST</a>
                 <a class="nav-link" href="/report-found">REPORT FOUND</a>
                 <a class="nav-link" href="/profile">PROFILE</a>
+                
+                <div onclick="toggleNotificationsModal()" style="position: relative; cursor: pointer; display: inline-flex; align-items: center; margin-left: 15px;" title="Claim Notifications">
+                    <i class="fa-solid fa-bell" style="font-size: 20px; color: #008080;"></i>
+                    <span id="claim-badge" style="display:none; position: absolute; top: -8px; right: -8px; background: #ff4757; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; border: 2px solid white;">0</span>
+                </div>
             </div>
         </div>
     </nav>
+
+    <!-- ─── Claim Toast Notification ─── -->
+    <div id="claim-toast" style="display:none; position:fixed; top:0; left:0; right:0; z-index:9999; background:linear-gradient(135deg,#008080,#00b3b3); color:white; padding:14px 24px; text-align:center; font-size:15px; font-weight:600; box-shadow:0 4px 20px rgba(0,0,0,0.2); animation:toastSlide 0.4s ease;">
+        🔔 &nbsp;<span id="claim-toast-msg">Someone has found your item! Check Recent Chats.</span>
+        <button onclick="document.getElementById('claim-toast').style.display='none'" style="margin-left:18px;background:rgba(255,255,255,0.25);border:none;color:white;border-radius:20px;padding:3px 12px;cursor:pointer;font-size:13px;">✕</button>
+    </div>
+    <style>
+    @keyframes toastSlide {
+        from { transform: translateY(-100%); opacity:0; }
+        to   { transform: translateY(0);    opacity:1; }
+    }
+    </style>
 
     <main class="main-layout">
         <div class="side-body">
@@ -56,16 +71,17 @@
                     <% posts.forEach(item => { %>
                         <div class="post"
                              data-status="<%= item.status %>"
+                             data-posterid="<%= item.postedBy?.userId %>" 
                              data-description="<%= (item.description || '').toLowerCase() %>"
                              data-title="<%= (item.title || item.brandColor || '').toLowerCase() %>">
                             <div class="user-post">
                                 <div class="post-header-left">
                                     <img class="post-logo"
-     src="<%= item.postedBy?.profilePic && item.postedBy.profilePic !== '/images/default.png'
-        ? item.postedBy.profilePic
-        : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.postedBy?.userId || item.postedBy?.name || 'User')}&background=random`
-     %>"
-     alt="User Profile" />
+                                         src="<%= item.postedBy?.profilePic && item.postedBy.profilePic !== '/images/default.png'
+                                            ? item.postedBy.profilePic
+                                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.postedBy?.userId || item.postedBy?.name || 'User')}&background=random`
+                                         %>"
+                                         alt="User Profile" />
                                     <div class="username">
                                         <h4><%= item.postedBy?.userId || item.postedBy?.name || 'Anonymous' %></h4>
                                         <p><%= new Date(item.createdAt).toLocaleDateString() %></p>
@@ -83,7 +99,7 @@
                             <div class="item">
                                 <div class="item-image">
                                     <% if (item.imagePath) { %>
-                                        <img  src="<%= item.imagePath %>" alt="<%= item.title || item.brandColor %>" />
+                                        <img src="<%= item.imagePath %>" alt="<%= item.title || item.brandColor %>" />
                                     <% } else { %>
                                         <img src="/images/placeholder.png" alt="No image" />
                                     <% } %>
@@ -100,7 +116,6 @@
                                         <p class="info-row">
                                             <span class="value">📍 <%= item.location %></span>
                                         </p>
-
                                         <p class="info-row">
                                             <span class="value">
                                                 📆 <%= new Date(item.dateLost || item.foundDate).toLocaleDateString() %>
@@ -125,16 +140,69 @@
 
     <%- include('partials/modal') %>
 
+    <div id="historyModal" class="modal-overlay" style="display:none; justify-content: center; align-items: center; z-index: 2000;">
+        <div class="modal-container" style="width: 350px; max-height: 500px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <h3 style="margin:0; color:#333;">Recent Chats</h3>
+                <button onclick="toggleHistoryModal()" style="background:none; border:none; font-size: 24px; cursor:pointer; color:#999;">&times;</button>
+            </div>
+            <div id="history-list" style="overflow-y: auto; max-height: 380px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal for Claim Alerts -->
+    <div id="notificationsModal" class="modal-overlay" style="display:none; justify-content: center; align-items: center; z-index: 2000;">
+        <div class="modal-container" style="width: 350px; max-height: 500px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <h3 style="margin:0; color:#333;">Claim Alerts</h3>
+                <button onclick="toggleNotificationsModal()" style="background:none; border:none; font-size: 24px; cursor:pointer; color:#999;">&times;</button>
+            </div>
+            <div id="notifications-list" style="overflow-y: auto; max-height: 380px;">
+                <p style="text-align:center; color:#888; margin-top:20px;">No alerts yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Chat Button (FAB) -->
+    <div id="floatingChatBtn" class="floating-chat-btn" onclick="toggleHistoryModal()" title="Recent Live Chats">
+        <i class="fa-solid fa-comments"></i>
+        <span id="chat-badge" class="floating-badge" style="display:none;">0</span>
+    </div>
+
+    <div id="chat-window" style="display:none; position:fixed; bottom:95px; right:25px; width:320px; height:400px; background:white; border-radius:10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 2001; flex-direction: column; overflow: hidden; border: 1px solid #ccc;">
+        <div style="background:#008080; color:white; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span id="chat-with-name" style="font-weight:bold;">Chat</span>
+            <button onclick="document.getElementById('chat-window').style.display='none'" style="background:none; border:none; color:white; cursor:pointer; font-size:18px;">&times;</button>
+        </div>
+        <div id="chat-messages" style="flex:1; padding:10px; overflow-y:auto; background:#f4f4f4; display:flex; flex-direction:column; gap:8px;"></div>
+        <div style="padding:10px; border-top:1px solid #eee; display:flex; gap:5px;">
+            <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px; outline:none;">
+            <button id="send-chat-btn" style="background:#008080; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">Send</button>
+        </div>
+    </div>
+
     <script src="/js/modal.js"></script>
     <script src="/js/dashboard.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
     <script>
+        const socket = io({
+            query: { userId: "<%= user.userId %>" }
+        });
+
+        const currentUserId = "<%= user.userId %>"; 
+        let targetPosterId = null;
+        let unreadCount = 0;
+        let claimUnreadCount = 0;
+
+        // ─── Filter Logic ───
         function filterPosts() {
             const isLost = document.getElementById('lost-filter').checked;
             const activeStatus = isLost ? 'lost' : 'found';
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
-            document.getElementById('listingTitle').textContent =
-                isLost ? 'LOST LISTINGS' : 'FOUND LISTINGS';
+            document.getElementById('listingTitle').textContent = isLost ? 'LOST LISTINGS' : 'FOUND LISTINGS';
 
             document.querySelectorAll('#listingsGrid .post').forEach(post => {
                 const matchesStatus = post.dataset.status === activeStatus;
@@ -144,8 +212,314 @@
                 post.style.display = (matchesStatus && matchesSearch) ? '' : 'none';
             });
         }
-
         document.addEventListener('DOMContentLoaded', () => filterPosts());
+
+        // ─── Chat History Functions ───
+        function toggleHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            if (modal.style.display === 'none') {
+                modal.style.display = 'flex';
+                loadChatHistory();
+                unreadCount = 0; 
+                updateBadge();
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+
+        async function loadChatHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '<p style="text-align:center; color:#888;">Loading chats...</p>';
+            
+            try {
+                const response = await fetch('/api/chat-history');
+                const data = await response.json();
+                list.innerHTML = '';
+
+                // Filter out SYSTEM notifications so only regular chats show
+                const chatsOnly = (data.history || []).filter(chat => chat.userId !== 'SYSTEM');
+
+                if (chatsOnly.length === 0) {
+                    list.innerHTML = '<p style="text-align:center; color:#888; margin-top:20px;">No recent live chats.</p>';
+                    return;
+                }
+
+                chatsOnly.forEach(chat => {
+                    const item = document.createElement('div');
+                    item.style = "padding:12px; border-bottom:1px solid #f0f0f0; cursor:pointer; transition:0.2s;";
+                    item.innerHTML = `
+                        <div style="font-weight:bold;color:#008080;">${chat.userId}</div>
+                        <div style="font-size:13px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${chat.lastMessage}</div>
+                    `;
+                    item.onmouseover = () => item.style.background = '#f9f9f9';
+                    item.onmouseout  = () => item.style.background = '';
+                    item.onclick = () => {
+                        toggleHistoryModal();
+                        startChat(chat.userId, chat.userId);
+                    };
+                    list.appendChild(item);
+                });
+            } catch (err) {
+                list.innerHTML = '<p style="color:red; text-align:center;">Failed to load history.</p>';
+            }
+        }
+
+        function updateBadge() {
+            const badge = document.getElementById('chat-badge');
+            if (unreadCount > 0) {
+                badge.innerText = unreadCount;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // ─── Claim Notifications Modal Functions ───
+        function toggleNotificationsModal() {
+            const modal = document.getElementById('notificationsModal');
+            if (modal.style.display === 'none') {
+                modal.style.display = 'flex';
+                loadNotifications();
+                claimUnreadCount = 0; 
+                updateClaimBadge();
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+
+        async function loadNotifications() {
+            const list = document.getElementById('notifications-list');
+            list.innerHTML = '<p style="text-align:center; color:#888;">Loading alerts...</p>';
+            
+            try {
+                const response = await fetch('/api/chat-history');
+                const data = await response.json();
+                list.innerHTML = '';
+
+                // Filter for only SYSTEM notifications
+                const alertsOnly = (data.history || []).filter(chat => chat.userId === 'SYSTEM');
+
+                if (alertsOnly.length === 0) {
+                    list.innerHTML = '<p style="text-align:center; color:#888; margin-top:20px;">No claim alerts yet.</p>';
+                    return;
+                }
+
+                alertsOnly.forEach(chat => {
+                    const item = document.createElement('div');
+                    item.style = "padding:12px 14px; border-bottom:1px solid #f0f0f0; background:#f0fafa; border-left:4px solid #008080; margin-bottom:8px; border-radius:4px;";
+                    item.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                            <span style="font-size:16px;">🔔</span>
+                            <span style="font-weight:700;color:#008080;font-size:13px;">Item Claim Alert</span>
+                        </div>
+                        <div style="font-size:12.5px;color:#555;line-height:1.5;white-space:pre-wrap;">${chat.lastMessage}</div>
+                    `;
+                    list.appendChild(item);
+                });
+            } catch (err) {
+                list.innerHTML = '<p style="color:red; text-align:center;">Failed to load alerts.</p>';
+            }
+        }
+
+        function updateClaimBadge() {
+            const badge = document.getElementById('claim-badge');
+            if (badge) {
+                if (claimUnreadCount > 0) {
+                    badge.innerText = claimUnreadCount;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        // ─── Claim Modal Functions ───
+        let _claimPosterId = null;
+        let _claimItemTitle = '';
+
+        function handleAction(itemId) {
+            const viewBtn = document.querySelector(`.view-details-btn[data-id="${itemId}"]`);
+            const postElement = viewBtn.closest('.post');
+            const posterId = postElement.dataset.posterid;
+            const posterName = postElement.querySelector('.username h4').innerText;
+            const itemTitle = postElement.querySelector('h2').innerText;
+
+            if (posterId === currentUserId) {
+                alert("This is your own post!");
+                return;
+            }
+
+            _claimPosterId = posterId;
+            _claimItemTitle = itemTitle;
+
+            // Pre-fill and show claim modal
+            document.getElementById('claimItemTitle').innerText = itemTitle;
+            document.getElementById('claimFoundWhere').value = '';
+            document.getElementById('claimNote').value = '';
+            document.getElementById('claimFinderName').value = '';
+            document.getElementById('claimPhone').value = '';
+            const cm = document.getElementById('claimModal');
+            cm.style.display = 'flex';
+        }
+
+        function closeClaimModal() {
+            document.getElementById('claimModal').style.display = 'none';
+        }
+
+        // ─── Main Chat Functions ───
+
+        async function startChat(posterId, posterName) {
+            if (posterId === currentUserId) {
+                alert("You cannot chat with yourself!");
+                return;
+            }
+            targetPosterId = posterId;
+            document.getElementById('chat-window').style.display = 'flex';
+            document.getElementById('chat-with-name').innerText = "Chat with " + posterName;
+            
+            // Clear previous messages and load history
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = '<p style="font-size:10px; text-align:center; color:#aaa;">Loading history...</p>';
+            
+            try {
+                const res = await fetch(`/api/messages/${posterId}`);
+                const data = await res.json();
+                messagesContainer.innerHTML = '';
+                if(data.chat) {
+                    data.chat.forEach(msg => {
+                        const type = msg.senderId === currentUserId ? 'sent' : 'received';
+                        appendMessage(msg.senderId === currentUserId ? 'You' : msg.senderId, msg.message, type);
+                    });
+                }
+            } catch (e) { console.error("History error", e); }
+        }
+
+        document.getElementById('send-chat-btn').onclick = function() {
+            const input = document.getElementById('chat-input');
+            const message = input.value;
+            if (message.trim() !== "" && targetPosterId) {
+                socket.emit('send_message', {
+                    receiverId: targetPosterId,
+                    senderId: currentUserId,
+                    message: message
+                });
+                appendMessage('You', message, 'sent');
+                input.value = "";
+            }
+        };
+
+        socket.on('receive_message', (data) => {
+            if (data.senderId === 'SYSTEM') {
+                const toast = document.getElementById('claim-toast');
+                document.getElementById('claim-toast-msg').innerText = data.message;
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 7000);
+
+                claimUnreadCount++;
+                updateClaimBadge();
+                return;
+            }
+            const chatWin = document.getElementById('chat-window');
+            if (chatWin.style.display === 'none' || targetPosterId !== data.senderId) {
+                unreadCount++;
+                updateBadge();
+            }
+            if (chatWin.style.display === 'flex' && targetPosterId === data.senderId) {
+                appendMessage(data.senderId, data.message, 'received');
+            }
+        });
+
+        // ─── Claim Notification ───
+        socket.on('claim_notification', (data) => {
+            // 1. Show toast banner
+            const toast = document.getElementById('claim-toast');
+            document.getElementById('claim-toast-msg').innerText = data.message;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 7000);
+
+            // 2. Bump the claim notifications badge in navbar
+            claimUnreadCount++;
+            updateClaimBadge();
+        });
+
+        // ─── Submit Claim ───
+        async function submitClaim() {
+            const finderName  = document.getElementById('claimFinderName').value.trim();
+            const phone       = document.getElementById('claimPhone').value.trim();
+            const foundWhere  = document.getElementById('claimFoundWhere').value.trim();
+
+            // Validate all required fields
+            let hasError = false;
+            if (!finderName) {
+                document.getElementById('claimFinderName').style.borderColor = 'red';
+                hasError = true;
+            }
+            if (!phone) {
+                document.getElementById('claimPhone').style.borderColor = 'red';
+                hasError = true;
+            }
+            if (!foundWhere) {
+                document.getElementById('claimFoundWhere').style.borderColor = 'red';
+                document.getElementById('claimFoundWhere').placeholder = 'Please fill this in!';
+                hasError = true;
+            }
+            if (hasError) return;
+
+            const note = document.getElementById('claimNote').value.trim();
+            const btn = document.getElementById('submitClaimBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> &nbsp;Sending...';
+
+            try {
+                const res = await fetch('/api/claim-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        posterId: _claimPosterId,
+                        itemTitle: _claimItemTitle,
+                        finderName,
+                        phone,
+                        foundWhere,
+                        note
+                    })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    closeClaimModal();
+                    // Show a local success toast to the claimant (green)
+                    const toast = document.getElementById('claim-toast');
+                    document.getElementById('claim-toast-msg').innerText = '✅ Owner has been notified! They will reach out to you soon.';
+                    toast.style.background = 'linear-gradient(135deg,#2ecc71,#27ae60)';
+                    toast.style.display = 'block';
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                        toast.style.background = 'linear-gradient(135deg,#008080,#00b3b3)';
+                    }, 5000);
+                } else {
+                    alert('Something went wrong. Please try again.');
+                }
+            } catch(err) {
+                alert('Network error. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-bell"></i> &nbsp;Notify Owner';
+            }
+        }
+
+        function appendMessage(sender, text, type) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.style.alignSelf = type === 'sent' ? 'flex-end' : 'flex-start';
+            msgDiv.style.backgroundColor = type === 'sent' ? '#008080' : '#e0e0e0';
+            msgDiv.style.color = type === 'sent' ? 'white' : 'black';
+            msgDiv.style.padding = '8px 12px';
+            msgDiv.style.borderRadius = '10px';
+            msgDiv.style.maxWidth = '80%';
+            msgDiv.style.fontSize = '14px';
+            msgDiv.innerHTML = `<b>${sender}:</b> ${text}`;
+            messagesContainer.appendChild(msgDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     </script>
 </body>
 </html>
