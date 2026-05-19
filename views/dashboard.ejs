@@ -71,19 +71,13 @@
                                         <p><%= new Date(item.createdAt).toLocaleDateString() %></p>
                                     </div>
                                 </div>
-        <div class="found-item-action">
-    <% 
-        // Resolve the redirect URL completely on the server side first
-        let redirectUrl = item.status === 'lost' ? '/report-found' : '/claim-item/' + item._id; 
-    %>
-    <button
-        style="cursor: pointer;"
-        class="<%= item.status === 'lost' ? 'item-found-btn' : '' %>"
-        onclick="window.location.href='<%= redirectUrl %>'">
-        
-        <%= item.status === 'lost' ? 'Item Found' : 'Claim Item' %>
-    </button>
-</div>
+                                <div class="found-item-action">
+                                    <button style="cursor: pointer;"
+                                        class="<%= item.status === 'lost' ? 'item-found-btn' : '' %>"
+                                        onclick="window.location.href='<%= item.status === `lost` ? `/report-found` : `/claim-item/` + item._id %>'">
+                                        <%= item.status === 'lost' ? 'Item Found' : 'Claim Item' %>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="item">
