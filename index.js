@@ -1,5 +1,7 @@
 require("dotenv").config();
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -10,8 +12,38 @@ const cookieParser = require("cookie-parser");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const multer = require("multer");
 const { LostItem, FoundItem } = require("./lost-found-data-model");
+const ContactRequest = require("./models/ContactRequest");
+const Message = require("./models/Message");
 
 const app = express();
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
+
+// Socket.io — authenticate via JWT cookie, join personal room
+io.use((socket, next) => {
+  const cookie = socket.handshake.headers.cookie || "";
+  const tokenMatch = cookie.match(/token=([^;]+)/);
+  if (!tokenMatch) return next(new Error("Unauthorized"));
+  try {
+    const decoded = jwt.verify(tokenMatch[1], process.env.JWT_SECRET);
+    socket.userId = decoded.id;
+    next();
+  } catch {
+    next(new Error("Unauthorized"));
+  }
+});
+
+io.on("connection", (socket) => {
+  // Each user joins their own private room (their MongoDB _id)
+  socket.join(socket.userId);
+
+  socket.on("disconnect", () => {});
+});
+
+// Helper: emit a real-time event to a specific user
+function emitToUser(userId, event, data) {
+  io.to(userId.toString()).emit(event, data);
+}
 
 // ─── MongoDB ────────────────────────────────────────────────────────────────
 mongoose
@@ -279,10 +311,10 @@ app.get("/dashboard", verifyToken, async (req, res) => {
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
     );
 
-    res.render("dashboard", { posts });
+    res.render("dashboard", { posts, currentUserId: req.user.id });
   } catch (err) {
     console.error("Dashboard error:", err);
-    res.render("dashboard", { posts: [] });
+    res.render("dashboard", { posts: [], currentUserId: req.user.id });
   }
 });
 
@@ -396,16 +428,23 @@ app.post(
 
 app.get("/profile", verifyToken, async (req, res) => {
   try {
-    // IMPORTANT:
-    // use req.user.id NOT req.userId
-
     const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    res.render("profile", { user });
+    // User ke saare Lost aur Found items fetch karo
+    const [lostItems, foundItems] = await Promise.all([
+      LostItem.find({ postedBy: req.user.id }).sort({ createdAt: -1 }).lean(),
+      FoundItem.find({ postedBy: req.user.id }).sort({ createdAt: -1 }).lean(),
+    ]);
+
+    res.render("profile", {
+      user,
+      lostItems: lostItems || [],
+      foundItems: foundItems || [],
+    });
   } catch (error) {
     console.error("Profile Error:", error);
     res.status(500).send("Error loading profile");
@@ -512,6 +551,247 @@ app.post("/change-password", verifyToken, async (req, res) => {
   }
 });
 
+// ─── MESSAGING ROUTES ────────────────────────────────────────────────────────
+
+// POST /contact-request — Finder submits "I found your item" request
+app.post("/contact-request", verifyToken, async (req, res) => {
+  try {
+    const { lostItemId, foundLocation, finderContact, finderMessage } = req.body;
+
+    if (!lostItemId || !foundLocation || !finderContact) {
+      return res.status(400).json({ success: false, message: "Please fill all required fields" });
+    }
+
+    // Get the lost item to find the owner and title
+    const lostItem = await LostItem.findById(lostItemId);
+    if (!lostItem) {
+      return res.status(404).json({ success: false, message: "Lost item not found" });
+    }
+
+    // Prevent owner from contacting themselves
+    if (lostItem.postedBy.toString() === req.user.id) {
+      return res.status(400).json({ success: false, message: "You cannot contact yourself" });
+    }
+
+    // Prevent duplicate pending requests
+    const existing = await ContactRequest.findOne({
+      fromUser: req.user.id,
+      lostItemId,
+      status: "pending",
+    });
+    if (existing) {
+      return res.status(409).json({ success: false, message: "You already sent a request for this item" });
+    }
+
+    const request = new ContactRequest({
+      fromUser: req.user.id,
+      toUser: lostItem.postedBy,
+      lostItemId,
+      lostItemTitle: lostItem.title || lostItem.category || "Item",
+      foundLocation,
+      finderContact,
+      finderMessage,
+    });
+
+    await request.save();
+
+    // Real-time: notify the owner immediately
+    const populated = await request.populate("fromUser", "name userId profilePic");
+    emitToUser(lostItem.postedBy, "new_notification", {
+      notification: populated,
+    });
+
+    res.json({ success: true, message: "Contact request sent" });
+  } catch (err) {
+    console.error("Contact request error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// GET /notifications — Owner's incoming contact requests
+app.get("/notifications", verifyToken, async (req, res) => {
+  try {
+    const notifications = await ContactRequest.find({ toUser: req.user.id })
+      .populate("fromUser", "name userId profilePic")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const unreadCount = notifications.filter((n) => !n.readByOwner && n.status === "pending").length;
+
+    // Mark all as read
+    await ContactRequest.updateMany(
+      { toUser: req.user.id, readByOwner: false },
+      { readByOwner: true }
+    );
+
+    res.json({ notifications, unreadCount });
+  } catch (err) {
+    console.error("Notifications error:", err);
+    res.status(500).json({ notifications: [], unreadCount: 0 });
+  }
+});
+
+// GET /notifications/count — Lightweight badge count check
+app.get("/notifications/count", verifyToken, async (req, res) => {
+  try {
+    const count = await ContactRequest.countDocuments({
+      toUser: req.user.id,
+      readByOwner: false,
+      status: "pending",
+    });
+    res.json({ count });
+  } catch (err) {
+    res.json({ count: 0 });
+  }
+});
+
+// POST /contact-request/:id/accept — Owner accepts a request
+app.post("/contact-request/:id/accept", verifyToken, async (req, res) => {
+  try {
+    const request = await ContactRequest.findOne({
+      _id: req.params.id,
+      toUser: req.user.id,
+    });
+    if (!request) return res.status(404).json({ success: false, message: "Request not found" });
+
+    request.status = "accepted";
+    await request.save();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// POST /contact-request/:id/reject — Owner rejects a request
+app.post("/contact-request/:id/reject", verifyToken, async (req, res) => {
+  try {
+    const request = await ContactRequest.findOne({
+      _id: req.params.id,
+      toUser: req.user.id,
+    });
+    if (!request) return res.status(404).json({ success: false, message: "Request not found" });
+
+    request.status = "rejected";
+    await request.save();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// GET /conversations — All accepted threads for the logged-in user
+app.get("/conversations", verifyToken, async (req, res) => {
+  try {
+    const requests = await ContactRequest.find({
+      $or: [{ fromUser: req.user.id }, { toUser: req.user.id }],
+      status: "accepted",
+    })
+      .populate("fromUser", "name userId profilePic")
+      .populate("toUser", "name userId profilePic")
+      .sort({ updatedAt: -1 })
+      .lean();
+
+    // For each thread, get last message and unread count
+    const conversations = await Promise.all(
+      requests.map(async (r) => {
+        const isOwner = r.toUser._id.toString() === req.user.id;
+        const otherUser = isOwner ? r.fromUser : r.toUser;
+        const lastMessage = await Message.findOne({ contactRequestId: r._id })
+          .sort({ createdAt: -1 })
+          .lean();
+        const unreadCount = await Message.countDocuments({
+          contactRequestId: r._id,
+          sender: { $ne: req.user.id },
+          read: false,
+        });
+        return {
+          _id: r._id,
+          otherUser,
+          lostItemTitle: r.lostItemTitle,
+          lastMessage,
+          unreadCount,
+        };
+      })
+    );
+
+    res.json({ conversations });
+  } catch (err) {
+    console.error("Conversations error:", err);
+    res.status(500).json({ conversations: [] });
+  }
+});
+
+// GET /messages/:requestId — Get messages in a thread
+app.get("/messages/:requestId", verifyToken, async (req, res) => {
+  try {
+    const request = await ContactRequest.findOne({
+      _id: req.params.requestId,
+      $or: [{ fromUser: req.user.id }, { toUser: req.user.id }],
+      status: "accepted",
+    });
+    if (!request) return res.status(403).json({ success: false, message: "Not authorized" });
+
+    const messages = await Message.find({ contactRequestId: req.params.requestId })
+      .populate("sender", "name userId profilePic")
+      .sort({ createdAt: 1 })
+      .lean();
+
+    // Mark incoming messages as read
+    await Message.updateMany(
+      { contactRequestId: req.params.requestId, sender: { $ne: req.user.id }, read: false },
+      { read: true }
+    );
+
+    res.json({ messages });
+  } catch (err) {
+    console.error("Get messages error:", err);
+    res.status(500).json({ messages: [] });
+  }
+});
+
+// POST /messages/:requestId — Send a message in a thread
+app.post("/messages/:requestId", verifyToken, async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text || !text.trim()) {
+      return res.status(400).json({ success: false, message: "Message cannot be empty" });
+    }
+
+    const request = await ContactRequest.findOne({
+      _id: req.params.requestId,
+      $or: [{ fromUser: req.user.id }, { toUser: req.user.id }],
+      status: "accepted",
+    });
+    if (!request) return res.status(403).json({ success: false, message: "Not authorized" });
+
+    const message = new Message({
+      contactRequestId: req.params.requestId,
+      sender: req.user.id,
+      text: text.trim(),
+    });
+    await message.save();
+
+    // Real-time: push message to the other user in the thread
+    const otherUserId =
+      request.fromUser.toString() === req.user.id
+        ? request.toUser
+        : request.fromUser;
+
+    const populated = await message.populate("sender", "name userId profilePic");
+    emitToUser(otherUserId, "new_message", {
+      requestId: req.params.requestId,
+      message: populated,
+    });
+
+    res.json({ success: true, message: populated });
+  } catch (err) {
+    console.error("Send message error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 app.get("/logout", (req, res) => {
   res.clearCookie("token");
   res.redirect("/login");
@@ -519,6 +799,6 @@ app.get("/logout", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+httpServer.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT} ✅`);
 });

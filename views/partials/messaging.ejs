@@ -1,0 +1,113 @@
+<!-- =====================================================
+     MESSAGING PARTIAL — messaging.ejs
+     Include this in any page that needs messaging UI
+     ===================================================== -->
+
+<!-- Overlay (dims background when panel open) -->
+<div id="msgOverlay"></div>
+
+<!-- ─── Floating Message Button ─────────────────────────── -->
+<button id="floatingMsgBtn" title="Messages & Notifications">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+  </svg>
+  <span id="notifBadge" class="hidden">0</span>
+</button>
+
+<!-- ─── Slide-In Panel ───────────────────────────────────── -->
+<div id="msgPanel">
+
+  <!-- Panel Header -->
+  <div class="panel-header">
+    <h2>
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+      Messages
+    </h2>
+    <button id="closePanelBtn" title="Close">✕</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="panel-tabs">
+    <button class="panel-tab active" data-tab="notifications">🔔 Notifications</button>
+    <button class="panel-tab" data-tab="conversations">💬 Chats</button>
+  </div>
+
+  <!-- Panel Body -->
+  <div class="panel-body">
+
+    <!-- Notifications Tab -->
+    <div id="tab-notifications" class="tab-content active">
+      <div id="notifList">
+        <div class="panel-empty">
+          <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          <p>No notifications yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversations Tab -->
+    <div id="tab-conversations" class="tab-content">
+      <div id="convoList">
+        <div class="panel-empty">
+          <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          <p>No active chats yet</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-body -->
+
+  <!-- Chat sub-panel (shown inside drawer when a chat is opened) -->
+  <div id="chatPanel">
+    <div class="chat-header">
+      <button class="chat-back-btn" id="chatBackBtn">←</button>
+      <div>
+        <div class="chat-user-name" id="chatUserName">User</div>
+        <div class="chat-item-label" id="chatItemLabel"></div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-area">
+      <textarea id="chatTextInput" rows="1" placeholder="Type a message…"></textarea>
+      <button id="chatSendBtn" title="Send">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /msgPanel -->
+
+<!-- ─── "I Found This Item" Modal ────────────────────────── -->
+<div id="foundItemModal">
+  <div class="found-modal-overlay" id="foundModalOverlay"></div>
+  <div class="found-modal-box">
+    <button class="found-modal-close" id="foundModalClose">✕</button>
+    <h2>🎉 I Found This Item!</h2>
+    <p class="found-modal-item-tag" id="foundModalItemTag">Loading…</p>
+
+    <!-- Form -->
+    <div id="foundModalForm">
+      <input type="hidden" id="foundModalItemId" />
+      <div class="found-form-group">
+        <label>Where did you find it?</label>
+        <input type="text" id="foundLocInput" placeholder="e.g. Library, 2nd floor" required />
+      </div>
+      <div class="found-form-group">
+        <label>Your contact (phone / email)</label>
+        <input type="text" id="foundContactInput" placeholder="So the owner can reach you" required />
+      </div>
+      <div class="found-form-group">
+        <label>Message to the owner</label>
+        <textarea id="foundMsgInput" placeholder="Describe where you have it, how to hand it over, etc."></textarea>
+      </div>
+      <button class="found-modal-submit" id="foundModalSubmit">Send Contact Request</button>
+    </div>
+
+    <!-- Success state (shown after submit) -->
+    <div id="foundModalSuccess" class="found-modal-success" style="display:none;">
+      <div class="success-icon">✅</div>
+      <h3>Request Sent!</h3>
+      <p>The owner has been notified. They'll accept your request and you can chat directly.</p>
+    </div>
+  </div>
+</div>

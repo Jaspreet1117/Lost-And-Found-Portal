@@ -7,10 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/dashboard.css" />
     <link rel="stylesheet" href="/css/modal.css" />
+    <link rel="stylesheet" href="/css/messaging.css" />
     <title>Dashboard | Lost & Found</title>
     <script src="https://kit.fontawesome.com/0ed85649cd.js" crossorigin="anonymous"></script>
 </head>
-<body>
+<body data-user-id="<%= typeof currentUserId !== 'undefined' ? currentUserId : '' %>">
     <nav class="navbar">
         <div class="nav-content">
             <div class="logo-area">
@@ -36,7 +37,7 @@
                 </div>
                 <div class="search-bar-container">
                     <input type="text" id="searchInput" placeholder="SEARCH ITEMS..." oninput="filterPosts()" />
-                    <button class="search-icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button class="search-icon-btn" onclick="filterPosts()"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </header>
 
@@ -57,7 +58,10 @@
                         <div class="post"
                              data-status="<%= item.status %>"
                              data-description="<%= (item.description || '').toLowerCase() %>"
-                             data-title="<%= (item.title || item.brandColor || '').toLowerCase() %>">
+                             data-title="<%= (item.title || item.brandColor || '').toLowerCase() %>"
+                             data-category="<%= (item.category || item.itemType || '').toLowerCase() %>"
+                             data-location="<%= (item.location || '').toLowerCase() %>"
+                             data-reporter="<%= (item.reporterName || item.founderName || '').toLowerCase() %>">
                             <div class="user-post">
                                 <div class="post-header-left">
                                     <img class="post-logo"
@@ -74,7 +78,7 @@
                                 <div class="found-item-action">
                                     <button style="cursor: pointer;"
                                         class="<%= item.status === 'lost' ? 'item-found-btn' : '' %>"
-                                        onclick="window.location.href='<%= item.status === 'lost' ? '/report-found' : '/claim-item/' + item._id %>'">
+                                        onclick="<%= item.status === 'lost' ? `openFoundItemModal('${item._id}', '${(item.title || item.brandColor || 'Item').replace(/'/g, "\\'")}')`  : `window.location.href='/claim-item/${item._id}'` %>">
                                         <%= item.status === 'lost' ? 'Item Found' : 'Claim Item' %>
                                     </button>
                                 </div>
@@ -115,34 +119,51 @@
                         </div>
                     <% }); %>
                 <% } else { %>
-                    <div class="no-posts-message">
+                    <div class="no-posts-message" id="emptyState">
                         <p>No posts yet. Be the first to report a lost or found item!</p>
                     </div>
                 <% } %>
+                <div class="no-posts-message" id="noResultsMsg" style="display:none;">
+                    <p>🔍 No results found. Try a different keyword.</p>
+                </div>
             </div>
         </div>
     </main>
 
     <%- include('partials/modal') %>
+    <%- include('partials/messaging') %>
 
     <script src="/js/modal.js"></script>
     <script src="/js/dashboard.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/messaging.js"></script>
     <script>
         function filterPosts() {
             const isLost = document.getElementById('lost-filter').checked;
             const activeStatus = isLost ? 'lost' : 'found';
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
 
             document.getElementById('listingTitle').textContent =
                 isLost ? 'LOST LISTINGS' : 'FOUND LISTINGS';
 
+            let visibleCount = 0;
             document.querySelectorAll('#listingsGrid .post').forEach(post => {
                 const matchesStatus = post.dataset.status === activeStatus;
                 const matchesSearch = !searchTerm ||
-                    post.dataset.title.includes(searchTerm) ||
-                    (post.dataset.description || '').toLowerCase().includes(searchTerm);
-                post.style.display = (matchesStatus && matchesSearch) ? '' : 'none';
+                    (post.dataset.title || '').includes(searchTerm) ||
+                    (post.dataset.description || '').includes(searchTerm) ||
+                    (post.dataset.category || '').includes(searchTerm) ||
+                    (post.dataset.location || '').includes(searchTerm) ||
+                    (post.dataset.reporter || '').includes(searchTerm);
+
+                const visible = matchesStatus && matchesSearch;
+                post.style.display = visible ? '' : 'none';
+                if (visible) visibleCount++;
             });
+
+            // Show/hide "no results" message
+            const noResults = document.getElementById('noResultsMsg');
+            if (noResults) noResults.style.display = visibleCount === 0 ? '' : 'none';
         }
 
         document.addEventListener('DOMContentLoaded', () => filterPosts());

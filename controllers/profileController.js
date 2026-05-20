@@ -1,141 +1,64 @@
-// const User = require("../models/User");
-
-// const bcrypt = require("bcrypt");
 const User = require("../models/User");
-// Apne project ke actual Lost aur Found models ko yahan require karein
-const Lost = require("../models/Lost"); 
-const Found = require("../models/Found"); 
-
+const Post = require("../models/Post"); // Unified Post model
 const bcrypt = require("bcrypt");
 
-// GET Profile page with user's specific posts
+// GET Profile page — user ke saare lost & found posts dikhao
 exports.getProfile = async (req, res) => {
   try {
-    // 1. User ki profile details fetch karein
     const user = await User.findById(req.user.id);
 
-    // 2. Sirf is logged-in user ke kiye hue Lost aur Found reports fetch karein
-    // Maan lete hain ki models mein user ki id 'postedBy' ya 'userId' naam se save hoti hai
-    const lostItems = await Lost.find({ postedBy: req.user.id }).sort({ createdAt: -1 });
-    const foundItems = await Found.find({ postedBy: req.user.id }).sort({ createdAt: -1 });
+    // Is user ke saare posts, nayi se purani order mein
+    const myPosts = await Post.find({ postedBy: req.user.id }).sort({ createdAt: -1 });
 
-    // 3. Ye saara data profile.ejs template ko pass kar dein
-    res.render("profile", { 
-      user, 
-      lostItems: lostItems || [], 
-      foundItems: foundItems || [] 
+    // Status ke basis par alag karo
+    const lostItems  = myPosts.filter(item => item.status === "lost");
+    const foundItems = myPosts.filter(item => item.status === "found");
+
+    res.render("profile", {
+      user,
+      lostItems:  lostItems  || [],
+      foundItems: foundItems || [],
     });
   } catch (err) {
-    console.log(err);
+    console.error("Profile Fetch Error:", err);
     res.status(500).send("Server Error");
   }
 };
 
-// exports.getProfile = async (req, res) => {
-//   try {
-//     // 1. Logged-in user ki details fetch karein
-//     const user = await User.findById(req.user.id);
-
-//     // 2. Is user ke dwara post kiye gaye Lost Items fetch karein
-//     const lostItems = await LostItem.find({ postedBy: req.user.id }).sort({ createdAt: -1 });
-
-//     // 3. Is user ke dwara post kiye gaye Found Items fetch karein
-//     const foundItems = await FoundItem.find({ postedBy: req.user.id }).sort({ createdAt: -1 });
-
-//     // 4. Sabhi data ko profile view me pass karein
-//     res.render("profile", { 
-//       user, 
-//       lostItems, 
-//       foundItems 
-//     });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).send("Server Error");
-//   }
-// };
-
-exports.updateProfile = async (
-  req,
-  res,
-) => {
+// POST — profile info update karo
+exports.updateProfile = async (req, res) => {
   try {
-    const user = await User.findById(
-      req.user.id,
-    );
-
-    if (req.body.name)
-      user.name = req.body.name;
-
-    if (req.body.phone)
-      user.phone = req.body.phone;
-
-    if (req.body.bio)
-      user.bio = req.body.bio;
-
-    if (req.body.campus)
-      user.campus = req.body.campus;
-
-    if (req.file) {
-      user.profilePic = `/uploads/${req.file.filename}`;
-    }
-
+    const user = await User.findById(req.user.id);
+    if (req.body.name)   user.name   = req.body.name;
+    if (req.body.phone)  user.phone  = req.body.phone;
+    if (req.body.bio)    user.bio    = req.body.bio;
+    if (req.body.campus) user.campus = req.body.campus;
+    if (req.file)        user.profilePic = `/uploads/${req.file.filename}`;
     await user.save();
-
-    res.json({
-      success: true,
-    });
+    res.json({ success: true });
   } catch (err) {
-    console.log(err);
+    console.error("Update Profile Error:", err);
+    res.status(500).json({ success: false });
   }
 };
 
-exports.changePassword = async (
-  req,
-  res,
-) => {
+// POST — password change karo
+exports.changePassword = async (req, res) => {
   try {
-    const {
-      oldPassword,
-      newPassword,
-      confirmPassword,
-    } = req.body;
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    if (newPassword !== confirmPassword)
+      return res.json({ success: false, message: "Passwords do not match" });
 
-    if (
-      newPassword !== confirmPassword
-    ) {
-      return res.json({
-        success: false,
-      });
-    }
+    const user = await User.findById(req.user.id);
+    const match = await bcrypt.compare(oldPassword, user.password);
+    if (!match)
+      return res.json({ success: false, message: "Wrong current password" });
 
-    const user = await User.findById(
-      req.user.id,
-    );
-
-    const match = await bcrypt.compare(
-      oldPassword,
-      user.password,
-    );
-
-    if (!match) {
-      return res.json({
-        success: false,
-      });
-    }
-
-    const hashed = await bcrypt.hash(
-      newPassword,
-      10,
-    );
-
-    user.password = hashed;
-
+    user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
-
-    res.json({
-      success: true,
-    });
+    res.json({ success: true });
   } catch (err) {
-    console.log(err);
+    console.error("Change Password Error:", err);
+    res.status(500).json({ success: false });
   }
 };
