@@ -21,6 +21,8 @@
           method="POST"
           enctype="multipart/form-data"
         >
+          <input type="hidden" name="postedByOwnerId" id="postedByOwnerId" />
+          <input type="hidden" name="itemTitle" id="itemTitle" />
           <div class="form-grid">
             <div class="left-col">
               <section style="background-color: rgba(0, 123, 255, 0.1)">
@@ -136,5 +138,19 @@
         </form>
       </div>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ownerId = urlParams.get("postedByOwnerId");
+        const title = urlParams.get("itemTitle");
+        
+        if (ownerId) {
+          document.getElementById("postedByOwnerId").value = ownerId;
+        }
+        if (title) {
+          document.getElementById("itemTitle").value = title;
+        }
+      });
+    </script>
   </body>
 </html>

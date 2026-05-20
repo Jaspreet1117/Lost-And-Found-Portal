@@ -88,11 +88,16 @@
                                     </div>
                                 </div>
                                 <div class="found-item-action">
-                                    <button style="cursor: pointer;"
-                                        class="<%= item.status === 'lost' ? 'item-found-btn' : '' %>"
-                                        onclick="window.location.href='<%= item.status === `lost` ? `/report-found` : `/claim-item/` + item._id %>'">
-                                        <%= item.status === 'lost' ? 'Item Found' : 'Claim Item' %>
-                                    </button>
+                                    <% if (item.status === 'lost') { %>
+                                        <button style="cursor: pointer;" class="item-found-btn"
+                                            onclick="window.location.href='/report-found?postedByOwnerId=<%= item.postedBy?.userId %>&itemTitle=<%= encodeURIComponent(item.title || item.brandColor || ``) %>'">
+                                            Item Found
+                                        </button>
+                                    <% } else { %>
+                                        <button style="cursor: pointer;" onclick="handleAction('<%= item._id %>')">
+                                            Claim Item
+                                        </button>
+                                    <% } %>
                                 </div>
                             </div>
 
@@ -212,7 +217,26 @@
                 post.style.display = (matchesStatus && matchesSearch) ? '' : 'none';
             });
         }
-        document.addEventListener('DOMContentLoaded', () => filterPosts());
+
+        async function updateUnreadCountsFromServer() {
+            try {
+                const response = await fetch('/api/unread-counts');
+                const data = await response.json();
+                if (data.success) {
+                    claimUnreadCount = data.claimUnreadCount || 0;
+                    unreadCount = data.chatUnreadCount || 0;
+                    updateBadge();
+                    updateClaimBadge();
+                }
+            } catch (err) {
+                console.error("Error fetching unread counts", err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            filterPosts();
+            updateUnreadCountsFromServer();
+        });
 
         // ─── Chat History Functions ───
         function toggleHistoryModal() {
@@ -275,13 +299,16 @@
         }
 
         // ─── Claim Notifications Modal Functions ───
-        function toggleNotificationsModal() {
+        async function toggleNotificationsModal() {
             const modal = document.getElementById('notificationsModal');
             if (modal.style.display === 'none') {
                 modal.style.display = 'flex';
                 loadNotifications();
                 claimUnreadCount = 0; 
                 updateClaimBadge();
+                try {
+                    await fetch('/api/notifications/mark-read', { method: 'POST' });
+                } catch(e) {}
             } else {
                 modal.style.display = 'none';
             }
@@ -292,27 +319,28 @@
             list.innerHTML = '<p style="text-align:center; color:#888;">Loading alerts...</p>';
             
             try {
-                const response = await fetch('/api/chat-history');
+                const response = await fetch('/api/notifications');
                 const data = await response.json();
                 list.innerHTML = '';
 
-                // Filter for only SYSTEM notifications
-                const alertsOnly = (data.history || []).filter(chat => chat.userId === 'SYSTEM');
+                const alerts = data.notifications || [];
 
-                if (alertsOnly.length === 0) {
+                if (alerts.length === 0) {
                     list.innerHTML = '<p style="text-align:center; color:#888; margin-top:20px;">No claim alerts yet.</p>';
                     return;
                 }
 
-                alertsOnly.forEach(chat => {
+                alerts.forEach(alertItem => {
                     const item = document.createElement('div');
                     item.style = "padding:12px 14px; border-bottom:1px solid #f0f0f0; background:#f0fafa; border-left:4px solid #008080; margin-bottom:8px; border-radius:4px;";
+                    const formattedTime = new Date(alertItem.timestamp).toLocaleDateString() + ' ' + new Date(alertItem.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     item.innerHTML = `
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                             <span style="font-size:16px;">🔔</span>
                             <span style="font-weight:700;color:#008080;font-size:13px;">Item Claim Alert</span>
+                            <span style="font-size:11px;color:#999;margin-left:auto;">${formattedTime}</span>
                         </div>
-                        <div style="font-size:12.5px;color:#555;line-height:1.5;white-space:pre-wrap;">${chat.lastMessage}</div>
+                        <div style="font-size:12.5px;color:#555;line-height:1.5;white-space:pre-wrap;">${alertItem.message}</div>
                     `;
                     list.appendChild(item);
                 });
@@ -382,6 +410,12 @@
             messagesContainer.innerHTML = '<p style="font-size:10px; text-align:center; color:#aaa;">Loading history...</p>';
             
             try {
+                // Mark incoming messages as read in database
+                await fetch(`/api/messages/mark-read/${posterId}`, { method: 'POST' });
+                updateUnreadCountsFromServer();
+            } catch(e) {}
+
+            try {
                 const res = await fetch(`/api/messages/${posterId}`);
                 const data = await res.json();
                 messagesContainer.innerHTML = '';
@@ -426,6 +460,8 @@
             }
             if (chatWin.style.display === 'flex' && targetPosterId === data.senderId) {
                 appendMessage(data.senderId, data.message, 'received');
+                // Mark as read immediately on the server since the user is actively viewing this chat
+                fetch(`/api/messages/mark-read/${data.senderId}`, { method: 'POST' }).catch(() => {});
             }
         });
 

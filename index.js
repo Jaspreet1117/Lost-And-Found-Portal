@@ -25,7 +25,21 @@ const io = new Server(server);
 // ─── MongoDB ───
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log("MongoDB Connected ✅"))
+  .then(async () => {
+    console.log("MongoDB Connected ✅");
+    try {
+      // One-time migration: mark all legacy messages without isRead field as read
+      const result = await mongoose.model("Message").updateMany(
+        { isRead: { $exists: false } },
+        { $set: { isRead: true } }
+      );
+      if (result.modifiedCount > 0) {
+        console.log(`✅ Legacy messages migrated: marked ${result.modifiedCount} messages as read.`);
+      }
+    } catch (migErr) {
+      console.error("Migration error:", migErr);
+    }
+  })
   .catch((err) => console.error("MongoDB Error:", err));
 
 // ─── User Schema ───
@@ -50,6 +64,7 @@ const messageSchema = new mongoose.Schema({
     receiverId: String,
     message: String,
     timestamp: { type: Date, default: Date.now },
+    isRead: { type: Boolean, default: false }
 });
 
 const Message = mongoose.model("Message", messageSchema);
@@ -229,6 +244,69 @@ app.get("/api/messages/:otherUserId", verifyToken, async (req, res) => {
     }
 });
 
+// API: Fetch all SYSTEM notifications for the user
+app.get("/api/notifications", verifyToken, async (req, res) => {
+    try {
+        const myId = req.user.userId;
+        const notifications = await Message.find({
+            senderId: "SYSTEM",
+            receiverId: myId
+        }).sort({ timestamp: -1 });
+        res.json({ success: true, notifications });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Error fetching notifications" });
+    }
+});
+
+// API: Count unread notifications and unread chats
+app.get("/api/unread-counts", verifyToken, async (req, res) => {
+    try {
+        const myId = req.user.userId;
+        const claimUnreadCount = await Message.countDocuments({
+            receiverId: myId,
+            senderId: "SYSTEM",
+            isRead: { $ne: true }
+        });
+        const chatUnreadCount = await Message.countDocuments({
+            receiverId: myId,
+            senderId: { $ne: "SYSTEM" },
+            isRead: { $ne: true }
+        });
+        res.json({ success: true, claimUnreadCount, chatUnreadCount });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Error counting unread" });
+    }
+});
+
+// API: Mark all SYSTEM notifications as read
+app.post("/api/notifications/mark-read", verifyToken, async (req, res) => {
+    try {
+        const myId = req.user.userId;
+        await Message.updateMany(
+            { receiverId: myId, senderId: "SYSTEM", isRead: { $ne: true } },
+            { $set: { isRead: true } }
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false });
+    }
+});
+
+// API: Mark messages from a specific sender as read
+app.post("/api/messages/mark-read/:senderId", verifyToken, async (req, res) => {
+    try {
+        const myId = req.user.userId;
+        const senderId = req.params.senderId;
+        await Message.updateMany(
+            { receiverId: myId, senderId: senderId, isRead: { $ne: true } },
+            { $set: { isRead: true } }
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false });
+    }
+});
+
 
 // ─── POST: Claim Item Notification ───
 app.post("/api/claim-item", verifyToken, async (req, res) => {
@@ -366,18 +444,31 @@ app.get("/report-found", verifyToken, (req, res) => res.render("report-found"));
 
 // ─── POST: Report Found (Updated for Notifications) ───
 app.post("/report-found", verifyToken, upload.single("itemImage"), async (req, res) => {
-    const { founderName, itemType, location, description, postedByOwnerId, itemTitle } = req.body;
+    const { founderName, itemType, location, details, phone, email, postedByOwnerId, itemTitle } = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
     try {
         const foundItem = new FoundItem({
-            founderName, itemType, location, description, imagePath, postedBy: req.user.id,
+            founderName,
+            itemType,
+            location,
+            description: details,
+            contactPhone: phone,
+            contactEmail: email,
+            imagePath,
+            postedBy: req.user.id,
         });
         await foundItem.save();
 
         // Notification Logic: Agar owner ki ID mili hai toh notification bhejien
         if (postedByOwnerId && postedByOwnerId !== "undefined") {
-            const systemMessage = `CLAIM ALERT: Someone found your item "${itemTitle || 'Lost Item'}". Check found listings!`;
+            const systemMessage =
+                `🔔 CLAIM ALERT: Someone found your lost item "${itemTitle || 'Lost Item'}"!\n` +
+                `👤 Finder: ${founderName}\n` +
+                `📞 Contact: ${phone || 'N/A'}\n` +
+                `✉️ Email: ${email || 'N/A'}\n` +
+                `📍 Found at: ${location || 'N/A'}` +
+                (details ? `\n💬 Note: "${details}"` : '');
             
             // 1. Database mein notification save karein
             const notificationMsg = new Message({
@@ -390,9 +481,8 @@ app.post("/report-found", verifyToken, upload.single("itemImage"), async (req, r
             // 2. Real-time socket notification
             const ownerSocketId = userSockets.get(postedByOwnerId);
             if (ownerSocketId) {
-                io.to(ownerSocketId).emit("receive_message", {
-                    senderId: "SYSTEM",
-                    message: systemMessage
+                io.to(ownerSocketId).emit("claim_notification", {
+                    message: `Someone found your lost item "${itemTitle || 'Lost Item'}"! Finder: ${founderName}, Contact: ${phone || 'N/A'}. Check your alerts for details.`
                 });
             }
         }
