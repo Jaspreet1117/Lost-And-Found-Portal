@@ -1,0 +1,23 @@
+services:
+  # 1. The Self-Hosted MongoDB Service
+  - type: pserv
+    name: mongodb-service
+    env: docker
+    repo: https://github.com/docker-library/mongo # Uses official Mongo image
+    plan: free # Can be changed to 'starter' if needed
+    disk:
+      name: mongo-db-data
+      mountPath: /data/db
+      sizeGB: 1 # Free tier disk space for persistent data
+
+  # 2. Your Node.js Web App Service
+  - type: web
+    name: my-node-app
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        # Connects internally to the private MongoDB service above
+        value: mongodb://mongodb-service:27017/my_database

@@ -8,56 +8,64 @@ document.addEventListener("click", function (e) {
       title: card.querySelector("h2").textContent,
       image: card.querySelector(".item-image img").src,
       location: card.querySelector(".info-row .value").textContent,
-      // Grabbing the second .value for the date
+      // Date ko second value se utha rahe hain
       date: card.querySelectorAll(".info-row .value")[1].textContent,
       category: card.querySelector(".category-tag").textContent,
       status: card.querySelector(".status-badge").textContent.trim(),
-      // TARGETING THE DESCRIPTION HERE:
       description: card.getAttribute("data-description"),
+      
+      // Card ke attributes se Poster ki ID aur Name nikalna
+      posterId: card.getAttribute("data-posterid"),
+      posterName: card.querySelector(".username h4").textContent.trim()
     };
 
     openItemModal(itemData);
   }
 });
-// 1. Click the 'X' button
+
+// Modal close functions
 const closeBtn = document.getElementById("closeModal");
 const modal = document.getElementById("itemModal");
 
-closeBtn.onclick = function () {
-  modal.style.display = "none";
+if (closeBtn) {
+  closeBtn.onclick = () => modal.style.display = "none";
+}
+
+window.onclick = (event) => {
+  if (event.target == modal) modal.style.display = "none";
 };
 
-// 2. Click anywhere outside the modal content
-window.onclick = function (event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-};
-
-// 3. Press the 'Escape' key (Good for accessibility!)
-document.addEventListener("keydown", function (event) {
-  if (event.key === "Escape") {
-    modal.style.display = "none";
-  }
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") modal.style.display = "none";
 });
 
 function openItemModal(data) {
   const modal = document.getElementById("itemModal");
+  // ... (baaki UI updates wahi rahenge) ...
 
-  // Injects the description into the <p id="modalDesc">
-  document.getElementById("modalDesc").textContent =
-    data.description || "No description provided.";
+  const contactBtn = document.getElementById("contactPosterBtn");
+  if (contactBtn) {
+    contactBtn.onclick = function () {
+      modal.style.display = "none";
+      // Jab user khud "Contact" click kare, tabhi chat khule
+      startChat(data.posterId, data.posterName);
+    };
+  }
 
-  // Rest of your existing modal update code...
-  document.getElementById("modalTitle").textContent = data.title;
-  document.getElementById("modalImg").src = data.image;
-  document.getElementById("modalLocation").textContent = data.location;
-  document.getElementById("modalDate").textContent = data.date;
-  document.getElementById("modalCategory").textContent = data.category;
-
-  const badge = document.getElementById("modalBadge");
-  badge.textContent = data.status;
-  badge.className = `status-pill ${data.status.toLowerCase()}`;
-
+  const reportFoundBtn = document.querySelector(".item-found-btn-modal"); 
+  if (reportFoundBtn) {
+    if (data.status.toLowerCase() === 'lost') {
+      reportFoundBtn.style.display = "block";
+      reportFoundBtn.onclick = function(e) {
+        e.stopPropagation(); // Event ko yahin roko
+        modal.style.display = "none"; // Modal band karo
+        
+        // Sirf redirect karo, koi chat function call mat karo
+        window.location.href = `/report-found?postedByOwnerId=${data.posterId}&itemTitle=${encodeURIComponent(data.title)}`;
+      };
+    } else {
+      reportFoundBtn.style.display = "none";
+    }
+  }
   modal.style.display = "flex";
 }

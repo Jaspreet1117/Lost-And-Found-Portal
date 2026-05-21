@@ -117,6 +117,18 @@ app.use(
     saveUninitialized: true,
   }),
 );
+//const session = require("express-session");
+// const MongoStore = require("connect-mongo")(session);
+
+// app.use(session({
+//     secret: "secretkey",
+//     resave: false,
+//     saveUninitialized: false,
+
+//     store: new MongoStore({
+//         url: process.env.MONGO_URL
+//     })
+// }));
 
 app.use(passport.initialize());
 app.use(passport.session());
