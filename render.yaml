@@ -1,23 +1,24 @@
 services:
-  # 1. The Self-Hosted MongoDB Service
-  - type: pserv
-    name: mongodb-service
-    env: docker
-    repo: https://github.com/docker-library/mongo # Uses official Mongo image
-    plan: free # Can be changed to 'starter' if needed
-    disk:
-      name: mongo-db-data
-      mountPath: /data/db
-      sizeGB: 1 # Free tier disk space for persistent data
-
-  # 2. Your Node.js Web App Service
   - type: web
-    name: my-node-app
+    name: reunite-lost-found-portal
     env: node
     plan: free
     buildCommand: npm install
     startCommand: npm start
     envVars:
+      - key: PORT
+        value: 3000
       - key: MONGODB_URI
-        # Connects internally to the private MongoDB service above
-        value: mongodb://mongodb-service:27017/my_database
+        sync: false   # Set this manually in Render dashboard (MongoDB Atlas URI)
+      - key: GOOGLE_CLIENT_ID
+        value: 218957104612-n19a7thitavu827o9bo2mr1umavlfqur.apps.googleusercontent.com
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false   # Set this manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false   # Set this manually in Render dashboard
+      - key: SERVER_URL
+        value: https://reunite-lost-found-portal.onrender.com
+      - key: GOOGLE_CALLBACK_URL
+        value: https://reunite-lost-found-portal.onrender.com/auth/google/callback
+      - key: NODE_ENV
+        value: production
